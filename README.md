@@ -1,6 +1,17 @@
 ### This is use to auto processing relation the zemi.
 
 ```
-create_data.py
-    This is using for to create folder and correct pptx file date.
+File structure
+
+README.md
+requirements.txt
+bullet_marks.txt
+schedule.txt
+create_date.py
+ - template
+    - yourName_yyyymmdd.ppt
+    - data.md
+    - img
+ - index
+    - index.md
 ```
