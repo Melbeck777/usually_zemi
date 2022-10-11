@@ -1,4 +1,3 @@
-from operator import index
 import os
 import datetime
 import shutil
@@ -9,10 +8,39 @@ from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.layout import LAParams
 from io import StringIO
+import markdown
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+import pdfkit
 
 
 with open('bullet_marks.txt', 'r', encoding='utf-8') as f:
     bullet_points_marks = f.read().split('\n')
+
+def mark_to_html(file_name):
+    with open(file_name,'r',encoding='utf-8') as f:
+        text = f.read()
+        style = HtmlFormatter(style='solarized-dark').get_style_defs('.codehilite')
+        md = markdown.Markdown(extensions=['extra', 'codehilite'])
+        body = md.convert(text)
+        html = '<!doctype html><html lang="ja"><meta charset="UTF-8"><body>'
+        html += '<style>{}</style>'.format(style)
+        html += '''<style> table,th,td{
+            border-collapse:collapse;
+            border:1px solid #333;
+            }</style> '''
+        html += body+'</body></html>'
+    return html
+
+def html_to_pdf(html:str,output_file_name):
+    path_to_pdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_to_pdf)
+    pdfkit.from_string(html,output_file_name,configuration=config)
+
+
+def mark_to_pdf(file):
+    html = mark_to_html(file)
+    html_to_pdf(html,file.replace('md','pdf'))
 
 def get_contents_value(file_name):
     current_contents = []
@@ -84,3 +112,4 @@ with open(schedule_file, 'r', encoding='utf-8') as f:
                     index_f.write('\n{}'.format(day))
                     for cell in today_contents:
                         index_f.write('\n\t- {}'.format(cell))
+        mark_to_pdf(index_file)
