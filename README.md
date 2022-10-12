@@ -1,17 +1,13 @@
-### This is use to auto processing relation the zemi.
+## Automatization of Miscellaneous
 
+
+### material
 ```
-File structure
+Create each times seminar folder and summarize the table of contents each materials as 'index.pdf'.
+```
 
-README.md
-requirements.txt
-bullet_marks.txt
-schedule.txt
-create_date.py
- - template
-    - yourName_yyyymmdd.ppt
-    - data.md
-    - img
- - index
-    - index.md
+
+### remind
+```
+Create remind of each seminars.
 ```
