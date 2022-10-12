@@ -66,7 +66,7 @@ def get_contents_value(file_name):
             continue
         elif contents[0] in bullet_points_marks:
             current_contents.append(contents[1:])
-        else:
+        elif contents[0] != ' ':
             non_mark_count += 1
     return current_contents
 
