@@ -69,13 +69,7 @@ def create_summary(path):
             f.writelines(current_summary_text)
     # return 
 
-def get_txt_data(path):
-    with open(path, 'r', encoding='utf-8') as f:
-        order = f.read().split('\n')
-    return order
-
 def get_order_data(path):
-    res = {}
     edit_order = []
     with open(path,'r',encoding='utf-8') as f:
         read = f.read().split('\n')
