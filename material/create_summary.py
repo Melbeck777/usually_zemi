@@ -10,9 +10,13 @@ target_day = datetime.datetime(2022,7,26)
 week_days = ['月','火','水','木','金','土','日']
 
 today = datetime.datetime.today()
+pre_week_day = today-datetime.timedelta(weeks=1)
+
 
 with open('bullet_marks.txt', 'r', encoding='utf-8') as f:
     bullet_points_marks = f.read().split('\n')
+with open('ignore.txt', 'r', encoding='utf-8') as f:
+    ignores = f.read().split('\n')
 
 def create_summary(path):
     base_sets = [[0,2], [5,10]]
@@ -60,7 +64,6 @@ def create_summary(path):
                     current_summary_text.append('\t\t{}\n'.format(input_str))
         with open(summary_file,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
-    # return 
 
 def get_order_data(path):
     edit_order = []
@@ -112,7 +115,9 @@ def get_contents_value(file_name):
             elif len(now_text) == 2:
                 now_text = [now_text[1]]
             for it in now_text:
-                print(it)
+                for ignore in ignores:
+                    if ignore in it:
+                        it = it[len(ignore)+1:]
                 bullet_flag = False
                 for bullet in bullet_points_marks:
                     if bullet not in it:
