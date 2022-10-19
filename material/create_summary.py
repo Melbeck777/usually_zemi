@@ -1,16 +1,8 @@
 import os
 import datetime
-import shutil
 from pathlib import Path
-import locale
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.converter import TextConverter
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.layout import LAParams
-from io import StringIO
+from PyPDF2 import PdfFileReader
 
-# locale.setlocale(locale.LC_TIME,'ja_JP.UTF-8')
 schedule_path = 'schedule.txt'
 out_folder = r'Summary\late'
 template = [str(x) for x in Path('Summary').glob('*month_day*.txt')]
@@ -18,9 +10,13 @@ target_day = datetime.datetime(2022,7,26)
 week_days = ['月','火','水','木','金','土','日']
 
 today = datetime.datetime.today()
+pre_week_day = today-datetime.timedelta(weeks=1)
+
 
 with open('bullet_marks.txt', 'r', encoding='utf-8') as f:
     bullet_points_marks = f.read().split('\n')
+with open('ignore.txt', 'r', encoding='utf-8') as f:
+    ignores = f.read().split('\n')
 
 def create_summary(path):
     base_sets = [[0,2], [5,10]]
@@ -55,7 +51,8 @@ def create_summary(path):
         current_summary_text[3] += ' {}:{:0>2}\n'.format(day.hour,day.minute)
         current_summary_text[4] += '{}\n'.format(edit_order[day_index%len(edit_order)])
         
-        people_data,counter = get_personal_data(group_folder,day,write_order)
+        # people_data,counter = get_personal_data(group_folder,day,write_order)
+        people_data,counter = get_personal_data(group_folder,target_day,write_order)
         if counter == 0:
             continue
         for name in write_order:
@@ -67,7 +64,6 @@ def create_summary(path):
                     current_summary_text.append('\t\t{}\n'.format(input_str))
         with open(summary_file,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
-    # return 
 
 def get_order_data(path):
     edit_order = []
@@ -79,6 +75,7 @@ def get_order_data(path):
             edit_order.append(it[0])
             write_order[int(it[1])] = it[0]
     return edit_order,write_order
+
 def get_schedule(path):
     schedule = []
     with open(path,'r',encoding='utf-8') as f:
@@ -107,31 +104,30 @@ def get_personal_data(group_folder,today,names):
 
 def get_contents_value(file_name):
     current_contents = [[] for i in range(2)]
-    end_index = 0
     with open(file_name,'rb') as f:
-        resource_manager = PDFResourceManager()
-        output = StringIO()
-        LapPrams = LAParams()
-        text_converter = TextConverter(resource_manager, output, laparams=LapPrams)
-        page_interpreter = PDFPageInterpreter(resource_manager,text_converter)
-        for index,now in enumerate(PDFPage.get_pages(f)):
-            end_index = index
-        for index,now in enumerate(PDFPage.get_pages(f)):
-            if index == 1 or index == end_index:
-                page_interpreter.process_page(now)
-        output_text = output.getvalue()
-        output.close()
-        text_converter.close()
-    now_content_index = 0
-    for contents in output_text.split('\n'):
-        if contents == str(end_index):
-            break
-        elif len(contents) == 0:
-            continue
-        elif contents == '1':
-            now_content_index += 1
-        elif contents[0] in bullet_points_marks:
-            current_contents[now_content_index].append(contents[1:])
+        reader = PdfFileReader(f)
+        page_numbers = reader.getNumPages()
+        indexes = [1,page_numbers-1]
+        for index,i in enumerate(indexes):
+            now_text = reader.getPage(i).extract_text().split('\n') 
+            if len(now_text) > 2:
+                now_text = now_text[1:-1]
+            elif len(now_text) == 2:
+                now_text = [now_text[1]]
+            for it in now_text:
+                for ignore in ignores:
+                    if ignore in it:
+                        it = it[len(ignore)+1:]
+                bullet_flag = False
+                for bullet in bullet_points_marks:
+                    if bullet not in it:
+                        continue
+                    bullet_flag = True
+                    current_contents[index].append(it[it.index(bullet)+1:])
+                if bullet_flag:
+                    continue
+                current_contents[index].append(it)
+        print(current_contents)
     return current_contents
 
 
