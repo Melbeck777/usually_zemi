@@ -1,8 +1,8 @@
 ## How to create date
 
 ### Set up
-`create_date`を自分のPCにコピーしてください．\
-`create_date`下で以下のコマンドを実行してください．
+`create_index`を自分のPCにコピーしてください．\
+`create_index`下で以下のコマンドを実行してください．
 ```
 pip install -r requirements.txt
 ```
@@ -16,18 +16,17 @@ bullet_marks.txt   <= 箇条書きに使うマークの一覧
 ignore.txt         <= 無視する言葉の一覧
 requirements.txt   <= コードを使うために必要なライブラリの記述
 READMe.md
-READMe.pdf         <= 説明用の資料
 2022_schedule.csv　<= 今年度のスケジュール
-create_date.py     <= index.pdfを作成する
+create_index.py     <= index.pdfを作成する
 ```
 
 <div style="page-break-before:always"></div>
 
 ### Use
 1. ゼミの日にまとめられているフォルダをpdfフォルダに入れる
-2. `create_date.py`を`create_date`直下で実行
+2. `create_index.py`を`create_index`直下で実行
    ```
-   py create_date.py
+   py create_index.py
    ```
 
 ## Rule
