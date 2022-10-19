@@ -12,7 +12,7 @@ pdf_folder = 'pdf'
 template = [str(x) for x in Path(reference_folder).glob('*month_day*.txt')]
 week_days = ['月','火','水','木','金','土','日']
 
-my_group_info = ['精密','構造物センシング']
+my_group_info = ['lab_name','group_name']
 
 today = datetime.datetime.today()
 pre_week_day = today-datetime.timedelta(days=7)

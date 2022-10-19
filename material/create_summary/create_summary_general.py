@@ -279,7 +279,7 @@ def get_bullet_name():
 
 if __name__ == '__main__':
     all_lab_member = get_lab_member(today)
-    group_infos = get_group('精密',all_lab_member)
+    group_infos = get_group('lab_name',all_lab_member)
     for group_info in group_infos:
         print(group_info)
         # 研究室，研究班
