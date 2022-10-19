@@ -1,4 +1,0 @@
-pdfminer.six
-pdfkit
-Pygments
-Markdown
