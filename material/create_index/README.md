@@ -6,7 +6,7 @@
 ```
 pip install -r requirements.txt
 ```
-[wkhtmltopdf](https://document.intra-mart.jp/library/forma/public/forma_setup_guide/texts/install/windows/pdf.html)のいインストールが必要
+[wkhtmltopdf](https://document.intra-mart.jp/library/forma/public/forma_setup_guide/texts/install/windows/pdf.html)のインストールが必要です．
 
 
 ### Folder structure
