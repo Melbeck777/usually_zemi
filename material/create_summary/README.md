@@ -80,7 +80,7 @@ pip install -r requirements.txt
     - Githubのリンク
     - etc..
   - 作成物 <!-- title -!>
-    - ichiのリンク
+    - 共有サーバ内のリンク
       - 書いたコード
       - 何かのマニュアル
 
