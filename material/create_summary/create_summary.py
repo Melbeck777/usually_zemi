@@ -5,25 +5,30 @@ from PyPDF2 import PdfFileReader
 import shutil
 import pandas as pd
 
+week_days = ['月','火','水','木','金','土','日']
 
+# 個人の状況に合わせて変更する箇所
 out_folder = 'out'
 reference_folder = '.'
 pdf_folder = 'pdf'
 template = [str(x) for x in Path(reference_folder).glob('*month_day*.txt')]
-week_days = ['月','火','水','木','金','土','日']
 
 my_group_info = ['lab_name','group_name']
 
+# 今日の日付から前後6日間を今週の資料と見なして出力
 today = datetime.datetime.today()
-pre_week_day = today-datetime.timedelta(days=7)
-next_week_day = today+datetime.timedelta(days=7)
+pre_week_day  = today-datetime.timedelta(days=6)
+next_week_day = today+datetime.timedelta(days=6)
 sep_date = datetime.datetime(2022,10,19,0,0)
 
 if os.path.exists(out_folder) != True:
     os.mkdir(out_folder)
 
+# 箇条書のリストの取得
 with open(os.path.join(reference_folder,'bullet_marks.txt'), 'r', encoding='utf-8') as f:
     bullet_points_marks = f.read().split('\n')
+
+# 無視する単語の取得
 with open(os.path.join(reference_folder,'ignore.txt'), 'r', encoding='utf-8') as f:
     ignores = f.read().split('\n')
 
@@ -52,6 +57,7 @@ def today_summary_folder(day):
 def add_editor_name(day,group_name, person_name):
     return '{}_{:0>2}_{:0>2}_{}_{}.txt'.format(str(day.year),str(day.month),str(day.day),person_name,group_name)
 
+# out から pdfに移動する
 def move_pre_summary(group_folder, file_name, day):
     summary_folder = today_summary_folder(day)
     from_path = os.path.join(group_folder,file_name)
@@ -105,6 +111,7 @@ def create_summary(group_info):
         with open(summary_file,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
 
+# 研究室メンバーの必要な情報を取得する
 def get_lab_member(day):
     term = 0
     if day.month < 3:
@@ -121,11 +128,13 @@ def get_lab_member(day):
         person_name = data[columns[target_index[3]]][index]
         if lab_name in lab_member:
             if degree == '教員':
+                # 教員は特定の班に属さないため別途処理を実装
                 if degree not in lab_member[lab_name]:
                     lab_member[lab_name][degree] = [person_name]
                 else:
                     lab_member[lab_name][degree].append(person_name)
             elif degree == 'B3':
+                # B3の研究室配属は特別なので別途処理を実装
                 if degree not in lab_member[lab_name]:
                     lab_member[lab_name][degree] = [[person_name,group_name]]
                 else:
@@ -150,6 +159,7 @@ def get_lab_member(day):
                 lab_member[lab_name][group_name][degree] = [person_name]
     return lab_member
 
+# 研究室の判明を取得する
 def get_group(lab_name,all_lab_member):
     group_list = []
     for group_name in all_lab_member[lab_name]:
@@ -161,6 +171,7 @@ def get_group(lab_name,all_lab_member):
             group_list.append([lab_name,group_name])
     return group_list
 
+# 議事録作成する人の順番(発表順番)
 def get_edit_order(group_info,all_lab_member):
     lab_member = all_lab_member[group_info[0]]
     edit_order = []
@@ -175,6 +186,7 @@ def get_edit_order(group_info,all_lab_member):
                 edit_order.append(person)
     return edit_order
 
+# ゼミの参加者の取得
 def get_participant(group_info,day,all_lab_member):
     lab_member = all_lab_member[group_info[0]]
     participants = lab_member['教員'][0]+'教授'
@@ -196,6 +208,7 @@ def get_participant(group_info,day,all_lab_member):
             participants += ', {}'.format(b3[0])
     return participants
 
+# スケジュールデータの取得
 def get_schedule(group_info):
     schedule = []
     term = 0
@@ -211,21 +224,22 @@ def get_schedule(group_info):
         schedule.append(today)
     return schedule
 
+# ルールを決める後の個人のデータの収集
 def get_personal_data(pdf_folder,today,names):
     today_folder = os.path.join(pdf_folder,"{:0>4}{:0>2}{:0>2}".format(today.year,today.month,today.day))
     people_data = {}
     pdf_counter = 0
-    bullet_names = get_bullet_name()
+    title_names = get_title_name()
     for name in names:
         people_data[name] = {}
-        for bullet_name in bullet_names:
-            people_data[name][bullet_name] = []
-    for now_file in Path(today_folder).glob('*.pdf'):
-        person_name = os.path.basename(now_file).split('_')[0]
-        pdf_counter += 1
-        people_data[person_name] = get_contents_value(now_file,people_data[name])
+        for title in title_names:
+            people_data[name][title] = []
+        for now_file in Path(today_folder).glob('{}*.pdf'.format(name)):
+            pdf_counter += 1
+            people_data[name] = get_contents_value(now_file,people_data[name])
     return people_data,pdf_counter
 
+# ルールを決める前の個人データの収集
 def get_old_personal_data(pdf_folder,today,names):
     today_folder = os.path.join(pdf_folder,"{:0>4}{:0>2}{:0>2}".format(today.year,today.month,today.day))
     people_data = {}
@@ -244,6 +258,7 @@ def get_old_personal_data(pdf_folder,today,names):
                 people_data[name] = personal_data
     return people_data,pdf_counter
 
+# ルールを決めた後の資料を読み込む
 def get_contents_value(file_name,person_data):
     with open(file_name,'rb') as f:
         reader = PdfFileReader(f)
@@ -278,6 +293,7 @@ def get_contents_value(file_name,person_data):
                 person_data[target_name].append(it)
     return person_data
 
+# ルールを決める前のpdfからのデータ取得
 def get_old_contents_value(file_name):
     current_contents = [[] for i in range(2)]
     with open(file_name,'rb') as f:
@@ -305,6 +321,7 @@ def get_old_contents_value(file_name):
                 current_contents[index].append(it)
     return current_contents
 
+# 無視する文字列を削除
 def remove_ignore(str):
     it = str
     for ignore in ignores:
@@ -320,7 +337,8 @@ def join_dir(first,second):
         os.mkdir(res)
     return res    
 
-def get_bullet_name():
+# README.mdからpdfデータから取得すべきタイトル一覧を取得
+def get_title_name():
     path = 'READMe.md'
     bullets_name = []
     target = '<!-- title -!>'
