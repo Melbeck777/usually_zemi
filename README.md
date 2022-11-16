@@ -1,13 +1,10 @@
-## Automatization of Miscellaneous
+## このリポジトリの目的
+研究室で発生する事務処理を簡略化するためのコードを作っています。
+基本的にはひとつの研究室で起こることや、自分がより情報をまとめやすくするために作ったコードあります。
 
+### 作成物
+1. create_summary
+  - 班員の資料から議事録を生成するためのコード
+2. create_index
+  - 過去の自分の資料からインデックスを生成するコード
 
-### material
-```
-Create each times seminar folder and summarize the table of contents each materials as 'index.pdf'.
-```
-
-
-### remind
-```
-Create remind of each seminars.
-```

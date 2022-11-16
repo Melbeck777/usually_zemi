@@ -15,13 +15,11 @@ pip install -r requirements.txt
 │  bullet_marks.txt   <= 箇条書きのマーク
 │  ignore.txt         <= pdfの中の無視する文字列
 │  create_summary.py         <= 特定の研究班の議事録を自動生成する
-│  create_summary_general.py <= 汎用性の高いコード
+│  create_summary_general.py <= 一つの班だけではなく、他の班に対しても使えるコード
 │ 
-├─pdf
-│  └─test_pdf.py <= pdfを取得して確認するための補助コード
+├─pdf <= 日付ごとにそれぞれの資料を保存するフォルダ
 │          
-├─member <= 研究室のメンバー
-│      
+├─member <= 研究室メンバーの記載されてるエクセルファイルがあるフォルダ
 │      
 └─out <= 議事録出力用フォルダ
 ```
@@ -74,5 +72,7 @@ pip install -r requirements.txt
     - 共有サーバ内のリンク
       - 書いたコード
       - 何かのマニュアル
+  - その他 <!-- title -!>
+    - 所感
 
 上記の項目をタイトルとするページを作成して下さい．
