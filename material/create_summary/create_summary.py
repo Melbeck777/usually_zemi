@@ -4,6 +4,7 @@ from pathlib import Path
 from PyPDF2 import PdfFileReader
 import shutil
 import pandas as pd
+import re
 
 week_days = ['月','火','水','木','金','土','日']
 
@@ -203,30 +204,43 @@ def get_contents_value(file_name,person_data):
                         now_text = [now_text[1]]
             if target_name == '':
                 continue
-            pre_bullet = False
-            for it in now_text:
-                it = remove_ignore(it)
-                bullet_flag = False
-                for bullet in bullet_points_marks:
-                    if bullet not in it:
-                        continue
-                    bullet_flag = True
-                    input_data = it[it.index(bullet)+1:]
-                    if input_data in person_data[target_name]:
-                        continue
-                    person_data[target_name].append(input_data)
-                if bullet_flag:
-                    pre_bullet = bullet_flag
-                    continue
-                if pre_bullet and bullet_flag == False:
-                    person_data[target_name][-1] += it
-                    if person_data[target_name].count(person_data[target_name][-1]) > 1:
-                        person_data[target_name].pop()
-                    continue 
-                if it in person_data[target_name]:
-                    continue
-                person_data[target_name].append(it)
+            person_data[target_name] = get_current_page(now_text, bullet_points_marks)
     return person_data
+
+# ページの情報の取得
+def get_current_page(lines, bullet_points_marks):
+    res = []
+    pre_bullet = False
+    for it in lines:
+        it = remove_ignore(it)
+        bullet_flag = is_numeric_bullet(it)
+        if bullet_flag:
+            res.append(it)
+            pre_bullet = bullet_flag
+            continue
+        for bullet in bullet_points_marks:
+            if bullet not in it:
+                continue
+            bullet_flag = True
+            input_data = it[it.index(bullet)+1:]
+            if input_data in res:
+                continue
+            res.append(input_data)
+        if bullet_flag:
+            pre_bullet = bullet_flag
+            continue
+        if pre_bullet and bullet_flag == False:
+            res[-1] += it
+            if res.count(res[-1]) > 1:
+                res.pop()
+            continue 
+        if it in res:
+            continue
+    return res
+
+# 数字の箇条書であるか判定
+def is_numeric_bullet(current_str):
+    return re.compile(r"\d+\. ").match(current_str) != None
 
 # ルールを決める前のスライドからの情報の取得
 def get_old_contents_value(file_name):
