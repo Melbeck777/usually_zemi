@@ -437,6 +437,40 @@ def create_summary_text(current_summary, names, member_data):
                 current_summary.append("\t\t{}\n".format(content))
     return current_summary
 
+def create_one_day_summary(group_info, day_index):
+    template_summary = get_template()
+    group_folder = os.path.join(out_folder,group_info[0],group_info[1])
+    group_pdf_folder = os.path.join(pdf_folder,group_info[0],group_info[1])
+    all_lab_member = get_lab_member(today)
+    day = get_schedule(group_info)[day_index]
+    edit_order = get_edit_order(group_info,all_lab_member)
+    summary_file_name = today_summary_file(day,group_info[1])
+    edit_summary = add_editor_name(day,group_info[1],edit_order[day_index%len(edit_order)])
+    summary_file = os.path.join(group_folder,edit_summary)
+    announcements = []
+    if os.path.exists(summary_file_name) == True:
+        announcements = get_announcements(summary_file_name,edit_order)
+    elif os.path.exists(edit_summary) == True:
+        announcements = get_announcements(edit_summary,edit_order)
+    elif os.path.exists(summary_file) == True:
+        announcements = get_announcements(summary_file, edit_order)
+    current_summary_text = write_basic_info(template_summary,group_info,day,edit_order[day_index%len(edit_order)],all_lab_member,announcements)
+    if day > sep_date:
+        print("run get_member_data")
+        member_data,counter = get_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
+    else:
+        member_data,counter = get_old_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
+    print("{}\n{}".format(counter,member_data))
+    if counter == 0:
+        return 
+    current_summary_text = create_summary_text(current_summary_text,edit_order,member_data)
+    print('output file : ',summary_file)
+    if os.path.exists(group_folder) == False:
+        os.makedirs(group_folder)
+    with open(summary_file,'w',encoding='utf-8') as f:
+        f.writelines(current_summary_text)
+
+
 # 議事録を作る
 def create_summary(group_info):
     template_summary = get_template()
@@ -452,32 +486,31 @@ def create_summary(group_info):
             move_pre_summary(group_folder,summary_file_name,day)
             move_pre_summary(group_folder,edit_summary,day)
             continue
-        summary_file = os.path.join(group_folder,edit_summary)
-        announcements = []
-        if os.path.exists(summary_file_name) == True:
-            announcements = get_announcements(summary_file_name,edit_order)
-        elif os.path.exists(edit_summary) == True:
-            announcements = get_announcements(edit_summary,edit_order)
-        elif os.path.exists(summary_file) == True:
-            announcements = get_announcements(summary_file, edit_order)
-        current_summary_text = write_basic_info(template_summary,group_info,day,edit_order[day_index%len(edit_order)],all_lab_member,announcements)
-        if day > sep_date:
-            member_data,counter = get_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
-        else:
-            member_data,counter = get_old_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
-        if counter == 0:
-            continue
-        current_summary_text = create_summary_text(current_summary_text,edit_order,member_data)
-        print('output file : ',summary_file)
-        with open(summary_file,'w',encoding='utf-8') as f:
-            f.writelines(current_summary_text)
+        create_one_day_summary(group_info,day_index)
+        # if next_week_day < day or pre_week_day > day:
+        #     move_pre_summary(group_folder,summary_file_name,day)
+        #     move_pre_summary(group_folder,edit_summary,day)
+        #     continue
+        # summary_file = os.path.join(group_folder,edit_summary)
+        # announcements = []
+        # if os.path.exists(summary_file_name) == True:
+        #     announcements = get_announcements(summary_file_name,edit_order)
+        # elif os.path.exists(edit_summary) == True:
+        #     announcements = get_announcements(edit_summary,edit_order)
+        # elif os.path.exists(summary_file) == True:
+        #     announcements = get_announcements(summary_file, edit_order)
+        # current_summary_text = write_basic_info(template_summary,group_info,day,edit_order[day_index%len(edit_order)],all_lab_member,announcements)
+        # if day > sep_date:
+        #     member_data,counter = get_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
+        # else:
+        #     member_data,counter = get_old_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
+        # if counter == 0:
+        #     continue
+        # current_summary_text = create_summary_text(current_summary_text,edit_order,member_data)
+        # print('output file : ',summary_file)
+        # with open(summary_file,'w',encoding='utf-8') as f:
+        #     f.writelines(current_summary_text)
 
 
 if __name__ == '__main__':
-    all_lab_member = get_lab_member(today)
-    lab_name = input("Input your lab name:")
-    group_infos = get_group(lab_name,all_lab_member)
-    for group_info in group_infos:
-        print(group_info)
-        # 研究室，研究班
-        create_summary(group_info)
+    create_summary(my_group_info)
