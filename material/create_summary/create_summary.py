@@ -14,7 +14,7 @@ reference_folder = '.'
 pdf_folder = 'pdf'
 template = [str(x) for x in Path(reference_folder).glob('*month_day*.txt')]
 
-my_group_info = ['lab_name','group_name']
+my_group_info = ['Test1','a']
 
 # 今日の日付から前後6日間を今週の資料と見なして出力
 today = datetime.datetime.today()
@@ -166,9 +166,10 @@ def get_participant(group_info,day,all_lab_member):
                 continue
             for person in group_member[current_degree]:
                 participants += ', {}'.format(person)
-    for b3 in lab_member['B3']:
-        if b3[1] == group_info[1]:
-            participants += ', {}'.format(b3[0])
+    if 'B3' in lab_member:
+        for b3 in lab_member['B3']:
+            if b3[1] == group_info[1]:
+                participants += ', {}'.format(b3[0])
     return participants
 
 # ある班のゼミを行うスケジュールの情報を取得する
@@ -178,7 +179,7 @@ def get_schedule(group_info):
     today = datetime.datetime.today()
     if today.month < 3:
         term = 1
-    path = '{}_schedule.csv'.format(today.year-term)
+    path = './schedule/{}_schedule.csv'.format(today.year-term)
     data = pd.read_csv(path)
     columns = data.columns
     for index,now_date in enumerate(data[columns[0]]):
@@ -284,7 +285,7 @@ def join_dir(first,second):
         os.mkdir(first)
     if os.path.exists(res) != True:
         os.mkdir(res)
-    return res    
+    return res 
 
 # 記載する項目の取得
 def get_bullet_name():
@@ -308,7 +309,6 @@ def write_basic_info(template,group_info,day,edit_name,all_lab_member,announceme
     template[3] += "{}:{:0>2}\n".format(day.hour,day.minute)
     template[4] += "{}\n".format(edit_name)
     template[5] += "{}\n".format(get_participant(group_info,day,all_lab_member))
-    print(template)
     target_word = "班全体に対する連絡事項\n"
     start = template.index(target_word)+1
     for index in range(len(announcements)):
@@ -474,5 +474,10 @@ def create_summary(group_info):
 
 
 if __name__ == '__main__':
-    # 研究室，研究班
-    create_summary(my_group_info)
+    all_lab_member = get_lab_member(today)
+    lab_name = input("Input your lab name:")
+    group_infos = get_group(lab_name,all_lab_member)
+    for group_info in group_infos:
+        print(group_info)
+        # 研究室，研究班
+        create_summary(group_info)
