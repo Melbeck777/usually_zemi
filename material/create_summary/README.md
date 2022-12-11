@@ -9,19 +9,33 @@ pip install -r requirements.txt
 
 ### Folder structure
 一例を示すために,10/13のまとめと出力したテキストファイルがあります．
-```
-│  year_month_day.txt <= 最低限のテンプレート
-│  2022_schedule.csv  <= 今年度のスケジュール(全班分)
-│  bullet_marks.txt   <= 箇条書きのマーク
-│  ignore.txt         <= pdfの中の無視する文字列
-│  create_summary.py         <= 特定の研究班の議事録を自動生成する
-│  create_summary_general.py <= 一つの班だけではなく、他の班に対しても使えるコード
-│ 
-├─pdf <= 日付ごとにそれぞれの資料を保存するフォルダ
-│          
-├─member <= 研究室メンバーの記載されてるエクセルファイルがあるフォルダ
-│      
-└─out <= 議事録出力用フォルダ
+│  bullet_marks.txt
+│  create_summary.py
+│  create_summary_general.py
+│  create_test.py
+│  ignore.txt
+│  README.md
+│  requirements.txt
+│  test_get_readme.py
+│  test_member.txt
+│  year_month_day.txt
+│
+├─member
+│      2022_member.xlsx
+│
+├─out
+├─pdf
+│  │  test_pdf.py
+│  │
+│  └─研究室名
+│      └─班名
+│          └─日付
+│
+├─schedule
+│      2022_schedule.csv
+│
+└─template
+        name_year_month_day.pptx
 ```
 
 <div style="page-break-before:always"></div>
