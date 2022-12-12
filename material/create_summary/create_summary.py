@@ -487,30 +487,6 @@ def create_summary(group_info):
             move_pre_summary(group_folder,edit_summary,day)
             continue
         create_one_day_summary(group_info,day_index)
-        # if next_week_day < day or pre_week_day > day:
-        #     move_pre_summary(group_folder,summary_file_name,day)
-        #     move_pre_summary(group_folder,edit_summary,day)
-        #     continue
-        # summary_file = os.path.join(group_folder,edit_summary)
-        # announcements = []
-        # if os.path.exists(summary_file_name) == True:
-        #     announcements = get_announcements(summary_file_name,edit_order)
-        # elif os.path.exists(edit_summary) == True:
-        #     announcements = get_announcements(edit_summary,edit_order)
-        # elif os.path.exists(summary_file) == True:
-        #     announcements = get_announcements(summary_file, edit_order)
-        # current_summary_text = write_basic_info(template_summary,group_info,day,edit_order[day_index%len(edit_order)],all_lab_member,announcements)
-        # if day > sep_date:
-        #     member_data,counter = get_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
-        # else:
-        #     member_data,counter = get_old_member_data(group_pdf_folder,day,edit_order,group_info,edit_order[day_index%len(edit_order)])
-        # if counter == 0:
-        #     continue
-        # current_summary_text = create_summary_text(current_summary_text,edit_order,member_data)
-        # print('output file : ',summary_file)
-        # with open(summary_file,'w',encoding='utf-8') as f:
-        #     f.writelines(current_summary_text)
-
 
 if __name__ == '__main__':
     create_summary(my_group_info)

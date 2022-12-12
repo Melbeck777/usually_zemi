@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ```
 
 ### Folder structure
-一例を示すために,10/13のまとめと出力したテキストファイルがあります．
+```
 │  bullet_marks.txt
 │  create_summary.py
 │  create_summary_general.py
@@ -68,6 +68,19 @@ pip install -r requirements.txt
 
 
 <div style="page-break-before:always"></div>
+
+## Next tasks
+- [ ] create_summaryのウェブアプリ化
+  - [ ] 出力後の議事録表示
+    - [ ] ある一意の班の情報のみを表示するコンポーネントを作る
+    - [ ] 拡張して異なる班のデータも表示するようにする
+  - [ ] 議事録の出力
+    - [ ] 研究室の指定
+    - [ ] 班の指定
+    - [ ] 出力日の指定
+  - [ ] 議事録の修正
+    - [ ] 表示で全ての議事録を編集可能な状態で表示する
+    - [ ] 編集後の保存が可能
 
 ## Rule
 - 作成資料に必要な項目
