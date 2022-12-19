@@ -3,11 +3,13 @@ import pandas as pd
 
 
 class get_lab_member:
-    def __init__(self):
+    def __init__(self,group_info):
+        self.group_info = group_info
         self.day = datetime.datetime.today()
         self.term = self.get_term()
         self.member_data_file = "./member/{}_member.xlsx".format(str(self.day.year-self.term))
         self.member_data = pd.read_excel(self.member_data_file)
+        
 
         # 研究室，研究班，学年，氏
         self.target_index = [9,11,0,1]
@@ -18,16 +20,41 @@ class get_lab_member:
         # B4, M1~2, D1~3
         self.degree_order = {'D':[3,3], 'M':[2,2], 'B':[1,4]} 
         self.lab_group_list = self.get_lab_group_list()
-
         self.all_lab_member = self.get_lab_member()
         # 二回目のゼミ以降
         self.sep_date = datetime.datetime(2022,10,13)
     
+    def get_ignores(self):
+        with open("ignore.txt", "r", encoding="utf-8") as f:
+            res = f.read().split("\n")
+        return res
+
+    def get_lab_names(self):
+        res = []
+        for it in self.all_lab_member[self.target_index[0]].unique():
+            if type(it) is float:
+                continue
+            res.append(it)
+        return res
+
     def get_term(self):
         term = 0
         if self.day.month < 4:
             term += 1
         return term
+
+    # ある班のゼミを行うスケジュールの情報を取得する
+    def get_schedule(self):
+        schedule = []
+        today = datetime.datetime.today()
+        path = './schedule/{}_schedule.csv'.format(today.year-self.term)
+        data = pd.read_csv(path)
+        columns = data.columns
+        for index,now_date in enumerate(data[columns[0]]):
+            now = "{} {}".format(now_date, data[self.group_info[1]][index])
+            today = datetime.datetime.strptime(now,'%Y/%m/%d %H:%M')
+            schedule.append(today)
+        return schedule
 
     def get_lab_group_list(self):
         res = []
@@ -81,11 +108,11 @@ class get_lab_member:
         return group_list
     
     # 議事録を編集する順番を取得する
-    def get_edit_order(self, group_info):
-        lab_member = self.all_lab_member[group_info[0]]
+    def get_edit_order(self):
+        lab_member = self.all_lab_member[self.group_info[0]]
         edit_order = []
         degree_order = {'D':[3,3], 'M':[2,2], 'B':[2,4]}
-        group_member = lab_member[group_info[1]]
+        group_member = lab_member[self.group_info[1]]
         for it in degree_order:
             for index in range(degree_order[it][0]):
                 current_degree = it+str(degree_order[it][1]-index)
@@ -96,11 +123,11 @@ class get_lab_member:
         return edit_order
 
     # ある班のゼミに参加する人を取得する
-    def get_participant(self, group_info):
-        lab_member = self.all_lab_member[group_info[0]]
-        participants = self.get_professor(group_info)
+    def get_participant(self):
+        lab_member = self.all_lab_member[self.group_info[0]]
+        participants = self.get_professor(self.group_info)
         degree_order = {'D':[3,3], 'M':[2,2], 'B':[2,4]}
-        group_member = lab_member[group_info[1]]
+        group_member = lab_member[self.group_info[1]]
         for it in degree_order:
             for index in range(degree_order[it][0]):
                 current_degree = it+str(degree_order[it][1]-index)
@@ -109,20 +136,20 @@ class get_lab_member:
                 for person in group_member[current_degree]:
                     participants += ', {}'.format(person)
         if 'B3' in lab_member:
-            participants += self.get_B3(group_info)
+            participants += self.get_B3(self.group_info)
         return participants
 
-    def get_professor(self, group_info):
+    def get_professor(self):
         res = ""
-        for name in self.all_lab_member[group_info[0]][self.teacher_label]:
+        for name in self.all_lab_member[self.group_info[0]][self.teacher_label]:
             res += name + "教授, "
         return res
 
-    def get_B3(self, group_info):
+    def get_B3(self):
         res = ""
-        b3_students = self.all_lab_member[group_info[0]][self.b3_label]
+        b3_students = self.all_lab_member[self.group_info[0]][self.b3_label]
         for b3 in b3_students:
-            if self.sep_date < self.day and group_info[1] != b3[1]:
+            if self.sep_date < self.day and self.group_info[1] != b3[1]:
                 continue
             res += ", " + b3[0]
         return res

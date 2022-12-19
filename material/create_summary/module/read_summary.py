@@ -10,6 +10,9 @@ class read_summary:
     def __init__(self, group_info, day):
         self.group_info = group_info
         self.day = day
+        self.template = self.get_template()
+        self.out_folder = os.path.join("out",group_info[0],group_info[1])
+        self.pdf_folder = os.path.join("pdf",group_info[0],group_info[1])
 
     # 議事録のテンプレートを取得
     def get_template(self):
@@ -42,18 +45,17 @@ class read_summary:
     def add_editor_name(self, person_name):
         return '{}_{:0>2}_{:0>2}_{}_{}.txt'.format(str(self.day.year),str(self.day.month),str(self.day.day),person_name,self.group_info[1])
 
-    # outからpdfに議事録のファイルを移動する
-    def move_pre_summary(self, out_folder, pdf_folder, file_name):
-        summary_folder = self.today_summary_folder()
-        from_path = os.path.join(out_folder,file_name)
-        to_path = os.path.join(pdf_folder,summary_folder,file_name)
-        if os.path.exists(to_path):
-            return True
-        elif os.path.exists(from_path) != True:
-            return True
-        print('{} => {}'.format(from_path,to_path))
-        shutil.move(from_path,to_path)
-
+    def get_summary_file_name(self, person_name):
+        file_names = [self.today_summary_file(), self.add_editor_name(person_name)]
+        folder_names = [self.out_folder, self.pdf_folder]
+        day_folder = self.today_summary_folder()
+        for folder_name in folder_names:
+            current_folder = os.path.join(folder_name, day_folder)
+            for file_name in file_names:
+                res = os.path.join(current_folder, file_name)
+                if os.path.exists(res) == True:
+                    return res
+        return os.path.join(folder_name[0],day_folder,file_names[0])
 
     # 作成した議事録から全体への連絡事項を取得する
     def get_announcements(self, file_name, names):
@@ -70,6 +72,19 @@ class read_summary:
             start += 1
         return res
 
+    # outからpdfに議事録のファイルを移動する
+    def move_pre_summary(self, out_folder, pdf_folder, file_name):
+        summary_folder = self.today_summary_folder()
+        from_path = os.path.join(out_folder,file_name)
+        to_path = os.path.join(pdf_folder,summary_folder,file_name)
+        if os.path.exists(to_path):
+            return True
+        elif os.path.exists(from_path) != True:
+            return True
+        print('{} => {}'.format(from_path,to_path))
+        shutil.move(from_path,to_path)
+
+    # tabの数を数える
     def count_tab(self, str):
         cnt = 0
         if len(str) == 0:

@@ -73,7 +73,19 @@ pip install -r requirements.txt
 
 <div style="page-break-before:always"></div>
 
+## Flowchart
+<div align="center">
+  <img src="img/flowchart.jpg" title="Flowchart" width="50%">
+</div>
+
+<div style="page-break-before:always"></div>
+
 ## Next tasks
+- [ ] create_summaryのモジュール化
+  - [ ] get_lab_data
+  - [ ] read_summary
+  - [ ] read_material
+  - [ ] make_summary
 - [ ] create_summaryのウェブアプリ化
   - [ ] 出力後の議事録表示
     - [ ] ある一意の班の情報のみを表示するコンポーネントを作る
@@ -85,6 +97,8 @@ pip install -r requirements.txt
   - [ ] 議事録の修正
     - [ ] 表示で全ての議事録を編集可能な状態で表示する
     - [ ] 編集後の保存が可能
+
+<div style="page-break-before:always"></div>
 
 ## Rule
 - 作成資料に必要な項目
