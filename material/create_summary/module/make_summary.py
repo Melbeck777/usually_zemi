@@ -1,51 +1,32 @@
 import os
 import datetime
-from pathlib import Path
-from PyPDF2 import PdfFileReader
-import shutil
-import pandas as pd
-import re
+import get_lab_data
 import read_summary
+import read_material
+
+# 資料作成についてのルールを決めた日
+SEP_DATE = datetime.datetime(2022,10,19)
+TODAY = datetime.datetime.today()
+ONE_WEEK_OFFSET = datetime.timedelta(weeks=1)
 
 class make_index:
-    def __init__(self,group_info, day):
+    def __init__(self,group_info, day, sep_date=SEP_DATE):
         self.group_info = group_info
         self.day = day
-        self.read_summary = read_summary(self.group_info, self.day)
+        self.sep_date = sep_date
+        self.pre_week_day = TODAY-ONE_WEEK_OFFSET
+        self.next_week_day = TODAY+ONE_WEEK_OFFSET
+        self.read_summary = read_summary(group_info, day)
+        self.lab_data     = get_lab_data(group_info,day)
+        self.read_material = read_material(group_info,day)
         self.bullet_names = self.get_bullet_name()
-        self.template = self.read_summary.template
-        self.out_folder = self.read_summary.out_folder
-        self.pdf_folder = self.read_summary.pdf_folder
+        self.template   = self.read_summary.template
+        self.out_folder = self.lab_data.out_folder
+        self.pdf_folder = self.lab_data.pdf_folder
         self.week_days = ['月','火','水','木','金','土','日']
-        self.schedule = self.read_summary.get_schedule()
-        self.ignores = self.read_summary.get_ignores()
+        self.schedule = self.lab_data.get_schedule()
+        self.ignores  = self.read_material.get_ignores()
     
-    # 数字の箇条書であるか判定
-    def is_numeric_bullet(self,current_str):
-        return re.compile(r"\d+\. ").match(current_str) != None
-
-    # 無視する言葉の除去
-    def remove_ignore(self,str):
-        it = str
-        for ignore in self.lab_names:
-            if ignore in it:
-                it = it[len(ignore)+1:]
-        return it
-
-    # 記載する項目の取得
-    def get_bullet_name(self):
-        path = 'READMe.md'
-        bullets_name = []
-        target = '<!-- title -!>'
-        with open(path, 'r', encoding='utf-8') as f:
-            now_text = f.read().split('\n')
-            rule_index = now_text.index('## Rule')
-            for now_data in now_text[rule_index:]:
-                if target in now_data:
-                    res = now_data.replace(' {}'.format(target),'').split(' ')[-1]
-                    bullets_name.append(res)
-        return bullets_name
-
     # 基本情報の記述
     def write_basic_info(self,edit_name,announcements):
         current_template = self.template
@@ -97,7 +78,7 @@ class make_index:
         
         announcements = self.read_summary.get_announcements(summary_file_name, edit_order)
         current_summary_text = self.write_basic_info(edit_order[day_index%len(edit_order)],self.read_summary.all_lab_member,announcements)
-        if day > sep_date:
+        if day > self.sep_date:
             member_data,counter = self.get_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
         else:
             member_data,counter = self.get_old_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
@@ -114,10 +95,9 @@ class make_index:
 
     # 議事録を作る
     def create_summary(self):
-        edit_order = self.read_summary.get_edit_order()
         for day_index,day in enumerate(self.schedule):
             summary_file_name = self.read_summary.summary_file_name(day,self.group_info[1])
-            if next_week_day < day or pre_week_day > day:
-                move_pre_summary(self.out_folder,summary_file_name,day)
+            if self.next_week_day < day or self.pre_week_day > day:
+                self.read_summary.move_pre_summary(self.out_folder,summary_file_name,day)
                 continue
-            create_one_day_summary(day_index)
+            self.create_one_day_summary(day_index)

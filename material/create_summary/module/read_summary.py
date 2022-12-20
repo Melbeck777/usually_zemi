@@ -1,18 +1,18 @@
 import os
 import datetime
 from pathlib import Path
-from PyPDF2 import PdfFileReader
 import shutil
-import pandas as pd
-import re
+import get_lab_data
 
 class read_summary:
     def __init__(self, group_info, day):
         self.group_info = group_info
         self.day = day
         self.template = self.get_template()
-        self.out_folder = os.path.join("out",group_info[0],group_info[1])
-        self.pdf_folder = os.path.join("pdf",group_info[0],group_info[1])
+        self.lab_data = get_lab_data(group_info,day)
+        self.out_folder = self.out_folder
+        self.pdf_folder = self.pdf_folder
+
 
     # 議事録のテンプレートを取得
     def get_template(self):
@@ -34,12 +34,6 @@ class read_summary:
     def today_summary_file(self):
         return '{}_{:0>2}_{:0>2}_{}.txt'.format(str(self.day.year),str(self.day.month),str(self.day.day),self.group_info[1])
 
-    '''
-    pdf/20221010
-    のように班員の資料が保存されたフォルダがあるのでそれを作るための準備
-    '''
-    def today_summary_folder(self):
-        return '{:0>4}{:0>2}{:0>2}'.format(str(self.day.year),str(self.day.month),str(self.day.day))
 
     # 議事録に作成者の名前があるファイルの生成
     def add_editor_name(self, person_name):
@@ -48,7 +42,7 @@ class read_summary:
     def get_summary_file_name(self, person_name):
         file_names = [self.today_summary_file(), self.add_editor_name(person_name)]
         folder_names = [self.out_folder, self.pdf_folder]
-        day_folder = self.today_summary_folder()
+        day_folder = self.lab_data.today_summary_folder()
         for folder_name in folder_names:
             current_folder = os.path.join(folder_name, day_folder)
             for file_name in file_names:
