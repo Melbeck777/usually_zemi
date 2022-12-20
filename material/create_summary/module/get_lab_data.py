@@ -6,15 +6,11 @@ import os
 TODAY = datetime.datetime.today()
 
 class get_lab_member:
-    def __init__(self,group_info,day=TODAY):
-        self.group_info = group_info
-        self.today = day
+    def __init__(self,day=TODAY):
+        self.day = day
         self.term = self.get_term()
-        self.member_data_file = "./member/{}_member.xlsx".format(str(self.today.year-self.term))
+        self.member_data_file = "./member/{}_member.xlsx".format(str(self.day.year-self.term))
         self.member_data = pd.read_excel(self.member_data_file)
-        self.out_folder = os.path.join("out",group_info[0],group_info[1])
-        self.pdf_folder = os.path.join("pdf",group_info[0],group_info[1])    
-
         
         # 研究室，研究班，学年，氏
         self.target_index = [9,11,0,1]
@@ -30,6 +26,11 @@ class get_lab_member:
         
         # 二回目のゼミ以降
         self.sep_date = datetime.datetime(2022,10,13)
+    
+    def get_term(self):
+        if self.day.month < 4:
+            return 1
+        return 0
 
     # 複数の研究室と協働でメンバーの情報を共有しているため、研究室名の取得
     def get_lab_names(self):
@@ -39,33 +40,6 @@ class get_lab_member:
                 continue
             res.append(it)
         return res
-
-    # 4月から翌年3月までは、同じメンバーになるためタームを取得する
-    def get_term(self):
-        term = 0
-        if self.today.month < 4:
-            term += 1
-        return term
-
-    # ある班のゼミを行うスケジュールの情報を取得する
-    def get_schedule(self):
-        schedule = []
-        today = datetime.datetime.today()
-        path = './schedule/{}_schedule.csv'.format(today.year-self.term)
-        data = pd.read_csv(path)
-        columns = data.columns
-        for index,now_date in enumerate(data[columns[0]]):
-            now = "{} {}".format(now_date, data[self.group_info[1]][index])
-            today = datetime.datetime.strptime(now,'%Y/%m/%d %H:%M')
-            schedule.append(today)
-        return schedule
-    
-    '''
-    pdf/20221010
-    のように班員の資料が保存されたフォルダがあるのでそれを作るための準備
-    '''
-    def today_summary_folder(self,day):
-        return '{:0>4}{:0>2}{:0>2}'.format(str(day.year),str(day.month),str(day.day))
 
     def get_lab_group_list(self):
         res = []
@@ -119,10 +93,70 @@ class get_lab_member:
                 group_list.append([lab_name,group_name])
         return group_list
     
+    # 記載する項目の取得
+    def get_title_names(self):
+        path = 'READMe.md'
+        title_names = []
+        target = '<!-- title -!>'
+        with open(path, 'r', encoding='utf-8') as f:
+            now_text = f.read().split('\n')
+            rule_index = now_text.index('## Rule')
+            for now_data in now_text[rule_index:]:
+                if target in now_data:
+                    res = now_data.replace(' {}'.format(target),'').split(' ')[-1]
+                    title_names.append(res)
+        return title_names
+
+    def get_schedule(self, group_info):
+        schedule_path = os.path.join("schedule", group_info[0],"{}_schedule.csv".format(self.day.year-self.term))
+        schedule = pd.read_csv(schedule_path, encoding="utf-8")
+        group_schedule = []
+        for index, element in enumerate(schedule["day"]):
+            current_day = datetime.datetime.strptime("{} {}".format(element, schedule[group_info[1]][index]),"%Y/%m/%d %H:%M")
+            group_schedule.append(current_day)
+        return group_schedule
+
+class get_lab_data(get_lab_member):
+    def __init__(self, group_info, day):
+        self.group_info = group_info
+        self.day = day
+        self.pdf_folder = os.path.join("pdf", group_info[0], group_info[1])
+        self.out_folder = os.path.join("out", group_info[0], group_info[1])
+        super().__init__(day)
+
+    # 発表者の情報を取得する
+    def get_presenter(self):
+        presenter = {}
+        titles = self.get_title_names()
+        group_data = self.all_lab_member[self.group_info[0]][self.group_info[1]]
+        for degree in group_data:
+            if len(group_data[degree]) == 0:
+                continue
+            for person in group_data[degree]:
+                presenter[person] = {}
+                for title in titles:
+                    presenter[person][title] = []
+        return presenter
+    
+    def get_professor(self):
+        res = ""
+        for name in self.all_lab_member[self.group_info[0]][self.teacher_label]:
+            res += name + "教授, "
+        return res
+
+    def get_B3(self):
+        res = ""
+        b3_students = self.all_lab_member[self.group_info[0]][self.b3_label]
+        for b3 in b3_students:
+            if self.sep_date < self.day and self.group_info[1] != b3[1]:
+                continue
+            res += ", " + b3[0]
+        return res
+
     # 議事録を編集する順番を取得する
     def get_edit_order(self):
-        lab_member = self.all_lab_member[self.group_info[0]]
         edit_order = []
+        lab_member = self.all_lab_member[self.group_info[0]]
         degree_order = {'D':[3,3], 'M':[2,2], 'B':[2,4]}
         group_member = lab_member[self.group_info[1]]
         for it in degree_order:
@@ -152,45 +186,9 @@ class get_lab_member:
             participants += self.get_B3(self.group_info)
         return participants
 
-    def get_professor(self):
-        res = ""
-        for name in self.all_lab_member[self.group_info[0]][self.teacher_label]:
-            res += name + "教授, "
-        return res
-
-    def get_B3(self):
-        res = ""
-        b3_students = self.all_lab_member[self.group_info[0]][self.b3_label]
-        for b3 in b3_students:
-            if self.sep_date < self.today and self.group_info[1] != b3[1]:
-                continue
-            res += ", " + b3[0]
-        return res
-
-    # 記載する項目の取得
-    def get_title_names(self):
-        path = 'READMe.md'
-        title_names = []
-        target = '<!-- title -!>'
-        with open(path, 'r', encoding='utf-8') as f:
-            now_text = f.read().split('\n')
-            rule_index = now_text.index('## Rule')
-            for now_data in now_text[rule_index:]:
-                if target in now_data:
-                    res = now_data.replace(' {}'.format(target),'').split(' ')[-1]
-                    title_names.append(res)
-        return title_names
-
-    # 発表者の情報を取得する
-    def get_presenter(self):
-        presenter = {}
-        titles = self.get_title_names()
-        group_data = self.all_lab_member[self.group_info[0]][self.group_info[1]]
-        for degree in group_data:
-            if len(group_data[degree]) == 0:
-                continue
-            for person in group_data[degree]:
-                presenter[person] = {}
-                for title in titles:
-                    presenter[person][title] = []
-        return presenter
+    '''
+    pdf/20221010
+    のように班員の資料が保存されたフォルダがあるのでそれを作るための準備
+    '''
+    def today_summary_folder(self,day):
+        return '{:0>4}{:0>2}{:0>2}'.format(str(day.year),str(day.month),str(day.day))

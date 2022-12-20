@@ -10,7 +10,7 @@ class read_material:
         self.group_info = group_info
         self.day        = day
         self.edit_name  = edit_name
-        self.lab_data   = get_lab_data(group_info)
+        self.lab_data   = get_lab_data.get_lab_data(group_info,day)
         self.presenter  = self.lab_data.get_presenter()
         self.ignores    = self.get_ignores()
         self.pdf_folder = self.lab_data.pdf_folder

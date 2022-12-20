@@ -9,7 +9,7 @@ class read_summary:
         self.group_info = group_info
         self.day = day
         self.template = self.get_template()
-        self.lab_data = get_lab_data(group_info,day)
+        self.lab_data = get_lab_data.get_lab_data(group_info,day)
         self.out_folder = self.out_folder
         self.pdf_folder = self.pdf_folder
 

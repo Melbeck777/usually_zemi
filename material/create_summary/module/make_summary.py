@@ -9,7 +9,7 @@ SEP_DATE = datetime.datetime(2022,10,19)
 TODAY = datetime.datetime.today()
 ONE_WEEK_OFFSET = datetime.timedelta(weeks=1)
 
-class make_index:
+class make_summary:
     def __init__(self,group_info, day, sep_date=SEP_DATE):
         self.group_info = group_info
         self.day = day
@@ -45,9 +45,11 @@ class make_index:
                 current_template[index+start] = "{}\n".format(announcements[index])
         current_template.append("\n")
         return current_template
-
+    
+# 
+    
     # 過去に作成した議事録との比較を行う
-    def compare_summary(self,person_summary, person_data):
+    def compare_same_title_summary(self,person_summary, person_data):
         for bullet_name in person_summary:
             if len(person_data[bullet_name]) == 0:
                 continue
@@ -58,6 +60,12 @@ class make_index:
                 person_summary[bullet_name].append(content)
         return person_summary
 
+    def compare_summary(self, past_summary, current_material):
+        out_summary = {}
+        for name in past_summary:
+            out_summary[name] = self.compare_same_title_summary(past_summary[name], current_material[name])
+        return out_summary
+    
     # 議事録に出力する形に変換
     def create_summary_text(self,current_summary, names, member_data):
         for name in names:
@@ -75,23 +83,23 @@ class make_index:
         day = self.schedule[day_index]
         edit_order = self.read_summary.get_edit_order()
         summary_file_name = self.read_summary.get_summary_file_name(edit_order[day_index%len(edit_order)])
-        
         announcements = self.read_summary.get_announcements(summary_file_name, edit_order)
         current_summary_text = self.write_basic_info(edit_order[day_index%len(edit_order)],self.read_summary.all_lab_member,announcements)
         if day > self.sep_date:
-            member_data,counter = self.get_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
+            member_data,counter = self.read_material.get_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
         else:
-            member_data,counter = self.get_old_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
-        print("{}\n{}".format(counter,member_data))
+            member_data,counter = self.read_material.get_old_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
         if counter == 0:
-            return 
+            return       
+        if os.path.exists(summary_file_name) == True:
+            past_summary = self.read_summary.get_summary_contents(summary_file_name, self.lab_data.get_presenter())
+            member_data = self.compare_summary(past_summary, member_data)
         current_summary_text = self.create_summary_text(current_summary_text,edit_order,member_data)
         print('output file : ',summary_file_name)
         if os.path.exists(self.out_folder) == False:
             os.makedirs(self.out_folder)
         with open(summary_file_name,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
-
 
     # 議事録を作る
     def create_summary(self):
