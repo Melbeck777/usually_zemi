@@ -172,7 +172,7 @@ class get_lab_data(get_lab_member):
     # 発表者ではない教授やB3を含む。発表者ではない人について記録することはない
     def get_participant(self):
         lab_member = self.all_lab_member[self.group_info[0]]
-        participants = self.get_professor(self.group_info)
+        participants = self.get_professor()
         degree_order = {'D':[3,3], 'M':[2,2], 'B':[2,4]}
         group_member = lab_member[self.group_info[1]]
         for it in degree_order:
@@ -183,12 +183,12 @@ class get_lab_data(get_lab_member):
                 for person in group_member[current_degree]:
                     participants += ', {}'.format(person)
         if 'B3' in lab_member:
-            participants += self.get_B3(self.group_info)
+            participants += self.get_B3()
         return participants
 
     '''
     pdf/20221010
     のように班員の資料が保存されたフォルダがあるのでそれを作るための準備
     '''
-    def today_summary_folder(self,day):
-        return '{:0>4}{:0>2}{:0>2}'.format(str(day.year),str(day.month),str(day.day))
+    def today_summary_folder(self):
+        return '{:0>4}{:0>2}{:0>2}'.format(str(self.day.year),str(self.day.month),str(self.day.day))

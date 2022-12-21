@@ -3,14 +3,14 @@ import datetime
 from pathlib import Path
 from PyPDF2 import PdfFileReader
 import re
-import get_lab_data
+from .get_lab_data import get_lab_data
 
 class read_material:
     def __init__(self, group_info, day, edit_name):
         self.group_info = group_info
         self.day        = day
         self.edit_name  = edit_name
-        self.lab_data   = get_lab_data.get_lab_data(group_info,day)
+        self.lab_data   = get_lab_data(group_info,day)
         self.presenter  = self.lab_data.get_presenter()
         self.ignores    = self.get_ignores()
         self.pdf_folder = self.lab_data.pdf_folder
@@ -23,7 +23,7 @@ class read_material:
         return res
 
     def get_bullet_marks(self):
-        with open("bullet_marks.txt.txt", "r", encoding="utf-8") as f:
+        with open("bullet_marks.txt", "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
 
@@ -34,7 +34,7 @@ class read_material:
     # 無視する言葉の除去
     def remove_ignore(self,str):
         it = str
-        for ignore in self.lab_names:
+        for ignore in self.ignores:
             if ignore in it:
                 it = it[len(ignore)+1:]
         return it
@@ -51,7 +51,7 @@ class read_material:
         for bullet in self.bullet_marks:
             if bullet not in it:
                 continue
-            return True, it[it.index(bullet)+1]
+            return True, it[it.index(bullet)+1:]
         return False, it
     
     # ページの情報の取得
@@ -68,8 +68,8 @@ class read_material:
             bullet_flag, input_data = self.judge_bullet_flag(it)
             if input_data in res:
                 continue
-            res.append(input_data)
             if bullet_flag:
+                res.append(input_data)
                 pre_bullet = bullet_flag
                 continue
             if pre_bullet and bullet_flag == False:

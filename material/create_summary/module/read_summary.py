@@ -2,16 +2,16 @@ import os
 import datetime
 from pathlib import Path
 import shutil
-import get_lab_data
+from .get_lab_data import get_lab_data
 
 class read_summary:
     def __init__(self, group_info, day):
         self.group_info = group_info
         self.day = day
         self.template = self.get_template()
-        self.lab_data = get_lab_data.get_lab_data(group_info,day)
-        self.out_folder = self.out_folder
-        self.pdf_folder = self.pdf_folder
+        self.lab_data = get_lab_data(group_info,day)
+        self.out_folder = self.lab_data.out_folder
+        self.pdf_folder = self.lab_data.pdf_folder
 
 
     # 議事録のテンプレートを取得
@@ -49,7 +49,10 @@ class read_summary:
                 res = os.path.join(current_folder, file_name)
                 if os.path.exists(res) == True:
                     return res
-        return os.path.join(folder_name[0],day_folder,file_names[0])
+        summary_folder = os.path.join(folder_names[0],day_folder)
+        if os.path.exists(summary_folder) != True:
+            os.makedirs(summary_folder)
+        return os.path.join(summary_folder,file_names[0])
 
     # 作成した議事録から全体への連絡事項を取得する
     def get_announcements(self, file_name, names):
@@ -68,7 +71,7 @@ class read_summary:
 
     # outからpdfに議事録のファイルを移動する
     def move_pre_summary(self, out_folder, pdf_folder, file_name):
-        summary_folder = self.today_summary_folder()
+        summary_folder = self.lab_data.today_summary_folder()
         from_path = os.path.join(out_folder,file_name)
         to_path = os.path.join(pdf_folder,summary_folder,file_name)
         if os.path.exists(to_path):

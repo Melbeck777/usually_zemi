@@ -1,8 +1,9 @@
 import os
 import datetime
-import get_lab_data
-import read_summary
-import read_material
+from .get_lab_data import get_lab_data
+from .get_lab_data import get_lab_member
+from .read_summary import read_summary
+from .read_material import read_material
 
 # 資料作成についてのルールを決めた日
 SEP_DATE = datetime.datetime(2022,10,19)
@@ -10,32 +11,36 @@ TODAY = datetime.datetime.today()
 ONE_WEEK_OFFSET = datetime.timedelta(weeks=1)
 
 class make_summary:
-    def __init__(self,group_info, day, sep_date=SEP_DATE):
+    def __init__(self,group_info, day_index, sep_date=SEP_DATE):
         self.group_info = group_info
-        self.day = day
+        self.lab_member = get_lab_member()
+        self.schedule = self.lab_member.get_schedule(group_info) 
+        self.day = self.schedule[day_index]
         self.sep_date = sep_date
         self.pre_week_day = TODAY-ONE_WEEK_OFFSET
         self.next_week_day = TODAY+ONE_WEEK_OFFSET
-        self.read_summary = read_summary(group_info, day)
-        self.lab_data     = get_lab_data(group_info,day)
-        self.read_material = read_material(group_info,day)
-        self.bullet_names = self.get_bullet_name()
+        self.lab_data     = get_lab_data(group_info,  self.day)
+        self.edit_order = self.lab_data.get_edit_order()
+        self.edit_name = self.edit_order[day_index%len(self.edit_order)]
+        self.read_summary = read_summary(group_info,  self.day)
+    
+        self.read_material = read_material(group_info,self.day, self.edit_name)
+        self.bullet_names = self.lab_data.get_title_names()
         self.template   = self.read_summary.template
         self.out_folder = self.lab_data.out_folder
         self.pdf_folder = self.lab_data.pdf_folder
         self.week_days = ['月','火','水','木','金','土','日']
-        self.schedule = self.lab_data.get_schedule()
         self.ignores  = self.read_material.get_ignores()
     
     # 基本情報の記述
-    def write_basic_info(self,edit_name,announcements):
+    def write_basic_info(self,announcements=[]):
         current_template = self.template
         current_template[0] = current_template[0].replace('group_name', self.group_info[1])
         current_template[1] = current_template[1].replace('year',str(self.day.year)).replace('month',str(self.day.month)).replace('day',str(self.day.day))
         current_template[2] += "{}曜日\n".format(self.week_days[self.day.weekday()])
         current_template[3] += "{}:{:0>2}\n".format(self.day.hour,self.day.minute)
-        current_template[4] += "{}\n".format(edit_name)
-        current_template[5] += "{}\n".format(self.read_summary.get_participant())
+        current_template[4] += "{}\n".format(self.edit_name)
+        current_template[5] += "{}\n".format(self.lab_data.get_participant())
         target_word = "班全体に対する連絡事項\n"
         start = current_template.index(target_word)+1
         for index in range(len(announcements)):
@@ -67,8 +72,8 @@ class make_summary:
         return out_summary
     
     # 議事録に出力する形に変換
-    def create_summary_text(self,current_summary, names, member_data):
-        for name in names:
+    def create_summary_text(self,current_summary, member_data):
+        for name in self.edit_order:
             current_summary.append("{}\n".format(name))
             for title in member_data[name]:
                 current_data = member_data[name][title]
@@ -81,21 +86,23 @@ class make_summary:
 
     def create_one_day_summary(self, day_index):
         day = self.schedule[day_index]
-        edit_order = self.read_summary.get_edit_order()
-        summary_file_name = self.read_summary.get_summary_file_name(edit_order[day_index%len(edit_order)])
-        announcements = self.read_summary.get_announcements(summary_file_name, edit_order)
-        current_summary_text = self.write_basic_info(edit_order[day_index%len(edit_order)],self.read_summary.all_lab_member,announcements)
+        summary_file_name = self.read_summary.get_summary_file_name(self.edit_name)
         if day > self.sep_date:
-            member_data,counter = self.read_material.get_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
+            member_data,counter = self.read_material.get_presenter_data()
         else:
-            member_data,counter = self.read_material.get_old_member_data(self.pdf_folder,edit_order,edit_order[day_index%len(edit_order)])
+            member_data,counter = self.read_material.get_old_presenter_data()
         if counter == 0:
             return       
         if os.path.exists(summary_file_name) == True:
             past_summary = self.read_summary.get_summary_contents(summary_file_name, self.lab_data.get_presenter())
             member_data = self.compare_summary(past_summary, member_data)
-        current_summary_text = self.create_summary_text(current_summary_text,edit_order,member_data)
+            announcements = self.read_summary.get_announcements(summary_file_name, self.edit_order)
+            current_summary_text = self.write_basic_info(announcements)
+        else:
+            current_summary_text = self.write_basic_info()
+        current_summary_text = self.create_summary_text(current_summary_text,member_data)
         print('output file : ',summary_file_name)
+        print(current_summary_text)
         if os.path.exists(self.out_folder) == False:
             os.makedirs(self.out_folder)
         with open(summary_file_name,'w',encoding='utf-8') as f:
