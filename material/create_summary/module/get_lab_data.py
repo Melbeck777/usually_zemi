@@ -43,7 +43,7 @@ class get_lab_member:
 
     def get_lab_group_list(self):
         res = []
-        lab_group_list = self.member_data[[self.columns[self.target_index[0]], self.columns[self.target_index[1]]]]
+        lab_group_list = self.member_data[[self.columns[self.target_index[0]], self.columns[self.target_index[1]]]].drop_duplicates()
         for index, element in enumerate(lab_group_list[self.columns[self.target_index[1]]]):
             if type(element) is float:
                 continue
@@ -180,10 +180,12 @@ class get_lab_data(get_lab_member):
                 current_degree = it+str(degree_order[it][1]-index)
                 if current_degree not in group_member:
                     continue
-                for person in group_member[current_degree]:
-                    participants += ', {}'.format(person)
+                for pi in range(len(group_member[current_degree])):
+                    participants += "{}, ".format(group_member[current_degree][pi])
         if 'B3' in lab_member:
             participants += self.get_B3()
+        if participants[-2:] == ", ":
+            participants = participants[:-2]
         return participants
 
     '''
