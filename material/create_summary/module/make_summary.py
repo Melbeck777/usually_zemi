@@ -102,7 +102,6 @@ class make_summary:
             current_summary_text = self.write_basic_info()
         current_summary_text = self.create_summary_text(current_summary_text,member_data)
         print('output file : ',summary_file_name)
-        print(current_summary_text)
         if os.path.exists(self.out_folder) == False:
             os.makedirs(self.out_folder)
         with open(summary_file_name,'w',encoding='utf-8') as f:
