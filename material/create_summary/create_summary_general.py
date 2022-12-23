@@ -1,21 +1,25 @@
 import datetime
-from module import write_summary
+from module.get_lab_data import get_lab_member
+from module.make_summary import make_summary
 
 def print_list(list, start=0):
-    for index, element in enumerate(list):
+    for index, element in enumerate(list[start:]):
         print("{} : {}".format(index+start,element))
 
-today = datetime.datetime.today()
-lab_member = write_summary.get_lab_member(today)
-degree = list(lab_member.keys())
-print_list(degree)
-degree_index = int(input("Input degree index :"))
-group_names = list(lab_member[degree[degree_index]].keys())
-print_list(group_names[1:],1)
-group_index = int(input("Input group name index :"))
-group_info = [degree[degree_index], group_names[group_index]]
-schedule = write_summary.get_schedule(group_info)
-print_list(schedule)
-day_index = int(input("Input day index : "))
-print(schedule[day_index])
-write_summary.create_one_day_summary(group_info, day_index)
+def input_range(list, start=0):
+    print_list(list, start)
+    index = int(input("Input index:"))
+    while index < start or index >= len(list):
+        print("Input range({}, {})".format(start, len(list)-1))
+        print_list(list, start)
+        index = int(input("Input index:"))
+    return index
+
+lab_member_obj = get_lab_member()
+group_infos = lab_member_obj.lab_group_list
+group_index = input_range(group_infos)
+group_info = group_infos[group_index]
+schedule = lab_member_obj.get_schedule(group_info)
+day_index = input_range(schedule)
+ms = make_summary(group_info,day_index)
+ms.create_one_day_summary(day_index)

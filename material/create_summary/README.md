@@ -81,11 +81,11 @@ pip install -r requirements.txt
 <div style="page-break-before:always"></div>
 
 ## Next tasks
-- [ ] create_summaryのモジュール化
-  - [ ] get_lab_data
-  - [ ] read_summary
-  - [ ] read_material
-  - [ ] make_summary
+- [x] create_summaryのモジュール化
+  - [x] get_lab_data
+  - [x] read_summary
+  - [x] read_material
+  - [x] make_summary
 - [ ] create_summaryのウェブアプリ化
   - [ ] 出力後の議事録表示
     - [ ] ある一意の班の情報のみを表示するコンポーネントを作る

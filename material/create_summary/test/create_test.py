@@ -1,3 +1,5 @@
+## testデータを生成する用のコード
+
 import os
 from pathlib import Path
 from openpyxl import Workbook
@@ -68,14 +70,14 @@ def create_test_member():
             group_name = group_names[current_index[2]]
             full_names.append(full_name)
             ws.append([degree_key,first_key,last_key,first_name[first_key],last_name[last_key],full_name,furigana,student_number,to_email_address(student_number),lab_name,'',group_name])
-    wb.save('member/2022_member.xlsx')
+    wb.save('../member/2022_member.xlsx')
 
 def get_member_name():
-    df = pd.read_excel('member/2022_member.xlsx')
+    df = pd.read_excel('../member/2022_member.xlsx')
     return df
 
 def create_pdf_directory(lab_names, group_names):
-    base_path = "pdf"
+    base_path = "../pdf"
     schedule = get_schedule()
     for lab in lab_names:
         for group in group_names:
@@ -84,14 +86,14 @@ def create_pdf_directory(lab_names, group_names):
                 os.makedirs(current_directory)
 
 def get_schedule():
-    read = pd.read_csv("./schedule/2022_schedule.csv")
+    read = pd.read_csv("../schedule/2022_schedule.csv")
     res = []
     for index,day in enumerate(read["day"]):
         res.append(datetime.datetime.strptime(day, "%Y/%m/%d"))
     return res
 
 def get_target_schedule(group_name):
-    read = pd.read_csv("./schedule/2022_schedule.csv")
+    read = pd.read_csv("../schedule/2022_schedule.csv")
     res = []
     for index,day in enumerate(read["day"]):
         res.append(datetime.datetime.strptime("{} {}".format(day,read[group_name][index]), "%Y/%m/%d %H:%M"))
@@ -104,8 +106,8 @@ def date_to_path(day):
 def copy_pptx(lab_name, group_name):
     df = get_member_name()
     group_member = df[(df[labels[-3]]==lab_name) & (df[labels[-1]]==group_name)]
-    template_pptx = "template/name_year_month_day.pptx"
-    base_path = os.path.join("pdf",lab_name,group_name)
+    template_pptx = "../template/name_year_month_day.pptx"
+    base_path = os.path.join("../pdf",lab_name,group_name)
     schedule = get_schedule()
     
     for day in schedule:
@@ -113,7 +115,8 @@ def copy_pptx(lab_name, group_name):
         for person in group_member[labels[5]]:
             person_pptx_path = os.path.join(base_path,current_day,"{}_{}.pptx".format(person.replace(" ",""), current_day))
             shutil.copy(template_pptx,person_pptx_path)
-            # print(person_pptx_path)
+
+
 create_pdf_directory(lab_names, group_names[:3])
 for lab_name in lab_names:
     for group_name in group_names[:3]:
