@@ -36,8 +36,11 @@ class setup_material:
     def get_editor_name(self,path):
         return os.path.basename(path).split('_')[0]
 
+    def today_name(self, date):
+        return "{}{:0>2}{:0>2}".format(date.year,date.month,date.day)
+
     def make_today_folder(self,date):
-        to_name = os.path.join(self.zemi_folder,'{}_{}'.format(date.month, date.day))
+        to_name = os.path.join(self.zemi_folder,self.today_name(date))
         if os.path.exists(to_name) == False:
             shutil.copytree(self.template_folder, to_name)
         return to_name
@@ -46,7 +49,7 @@ class setup_material:
         date_folder = self.make_today_folder(date)
         for ppt in Path(date_folder).glob('*.pptx'):
             editor_name = self.get_editor_name(ppt)
-            to_name = os.path.join(date_folder, '{}_{:0>4}{:0>2}{:0>2}.pptx'.format(editor_name,date.year,date.month,date.day))
+            to_name = os.path.join(date_folder, '{}_{}.pptx'.format(editor_name,self.today_name(date)))
             if os.path.exists(to_name) == False:
                 shutil.move(ppt,to_name)
                 print('{} => {}'.format(ppt,to_name))
