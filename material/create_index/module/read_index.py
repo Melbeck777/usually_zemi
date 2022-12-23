@@ -1,18 +1,17 @@
 import os
 import datetime
-import make_index
-
+from .setup_material import setup_material
 
 class read_index:
-    def __init__(self, reference_folder,zemi_folder):
-        self.make_index = make_index.make_index(reference_folder,zemi_folder)
+    def __init__(self,reference_folder,zemi_folder):
+        self.setup_material = setup_material(reference_folder, zemi_folder)
 
     # Get data from index.md
     def get_each_day_contents(self):
         each_days_contents = {}
         sep_date = datetime.datetime(2022,10,19,0,0)
-        bullets = self.make_index.get_bullet_name()
-        with open(self.make_index.index_file,'r', encoding='utf-8') as f:
+        bullets = self.setup_material.get_bullet_name()
+        with open(self.setup_material.index_file,'r', encoding='utf-8') as f:
             index_str = f.read()
             row = index_str.split('\n')
             current_date = ''

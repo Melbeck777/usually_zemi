@@ -12,12 +12,22 @@ pip install -r requirements.txt
 ### Folder structure
 一例を示すために,10/13のまとめと出力したテキストファイルがあります．
 ```
-bullet_marks.txt   <= 箇条書きに使うマークの一覧
-ignore.txt         <= 無視する言葉の一覧
-requirements.txt   <= コードを使うために必要なライブラリの記述
-READMe.md
-2022_schedule.csv　<= 今年度のスケジュール
-create_index.py     <= index.pdfを作成する
+│  bullet_marks.txt <= 箇条書きに使うマークの一覧
+│  create_index.py
+│  ignore.txt       <= 無視する言葉の一覧
+│  README.md
+│  requirements.txt 
+│
+├─module
+│  │  .gitignore
+│  │  make_index.py
+│  │  read_index.py
+│  │  read_material.py
+│  │  setup_material.py
+│  │  test.py
+│  └─  write_index.py
+│
+└─schedule
 ```
 
 <div style="page-break-before:always"></div>

@@ -8,23 +8,24 @@ class read_material:
         self.ignore_file = os.path.join(self.reference_folder, 'ignore.txt')
         self.titles = self.get_title_name()
         self.bullet_point_marks = self.get_marks(self.bullet_file)
+        self.ignores = self.get_marks(self.ignore_file)
 
-
+    
     def get_title_name(self):
-        path = os.path.join(self.reference_folder,'READMe.md')
+        path = os.path.join(self.reference_folder, "README.md")
         bullets_name = {}
-        target = '<!-- title -!>'
+        target = "<!-- title -!>"
         with open(path, 'r', encoding='utf-8') as f:
             now_text = f.read().split('\n')
             rule_index = now_text.index('## Rule')
             for now_data in now_text[rule_index:]:
                 if target in now_data:
-                    res = now_data.replace(' {}'.format(target),'').split(' ')[-1]
+                    res = now_data.replace(" {}".format(target),"").split(" ")[-1]
                     bullets_name[res] = []
         return bullets_name
     
-    def get_marks(self, mark_file):
-        with open(mark_file, 'r', encoding='utf-8') as f:
+    def get_marks(self, file):
+        with open(file, 'r', encoding='utf-8') as f:
             return f.read().split('\n')
     
     def remove_ignore(self, str):
@@ -36,12 +37,12 @@ class read_material:
         return it
 
     def judge_title(self, now_text):
-        target_name = ''
+        target_name = ""
         for title in self.titles:
             if title in now_text:
                 target_name = title
             return target_name, self.modify_title(now_text)
-        return target_name, '' 
+        return target_name, ""
     
     def modify_title(self, txt):
         if len(txt) > 2:
@@ -83,4 +84,3 @@ class read_material:
                     continue
                 current_contents[target_name] = self.get_target_title_page(now_text)
         return current_contents
-    
