@@ -29,6 +29,8 @@ create_index.py     <= index.pdfを作成する
    py create_index.py
    ```
 
+下記の`<!-- title -!>`をタイトルとするページを資料内に作成して下さい．
+
 ## Rule
 - 作成資料に必要な項目
   - 進捗報告 <!-- title -!>
@@ -46,4 +48,4 @@ create_index.py     <= index.pdfを作成する
     - 書いたコード
     - 何かのマニュアル
 
-上記の項目をタイトルとするページを作成して下さい．
+

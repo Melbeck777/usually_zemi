@@ -100,6 +100,8 @@ pip install -r requirements.txt
 
 <div style="page-break-before:always"></div>
 
+下記の`<!-- title -!>`をタイトルとするページを資料内に作成して下さい．
+
 ## Rule
 - 作成資料に必要な項目
   - 進捗報告 <!-- title -!>
@@ -119,4 +121,3 @@ pip install -r requirements.txt
   - その他 <!-- title -!>
     - 所感
 
-上記の`<!-- title -!>`がついている項目をタイトルとするページを作成して下さい．
