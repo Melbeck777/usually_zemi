@@ -1,32 +1,16 @@
 from PyPDF2 import PdfFileReader
 import os
+from .setup_material import setup_material
 
 class read_material:
-    def __init__(self, reference_folder):
+    def __init__(self, reference_folder, zemi_folder):
         self.reference_folder = reference_folder
         self.bullet_file = os.path.join(self.reference_folder, 'bullet_marks.txt')
         self.ignore_file = os.path.join(self.reference_folder, 'ignore.txt')
-        self.titles = self.get_title_name()
-        self.bullet_point_marks = self.get_marks(self.bullet_file)
-        self.ignores = self.get_marks(self.ignore_file)
-
-    
-    def get_title_name(self):
-        path = os.path.join(self.reference_folder, "README.md")
-        bullets_name = {}
-        target = "<!-- title -!>"
-        with open(path, 'r', encoding='utf-8') as f:
-            now_text = f.read().split('\n')
-            rule_index = now_text.index('## Rule')
-            for now_data in now_text[rule_index:]:
-                if target in now_data:
-                    res = now_data.replace(" {}".format(target),"").split(" ")[-1]
-                    bullets_name[res] = []
-        return bullets_name
-    
-    def get_marks(self, file):
-        with open(file, 'r', encoding='utf-8') as f:
-            return f.read().split('\n')
+        self.setup_material = setup_material(reference_folder, zemi_folder)
+        self.titles = self.setup_material.get_title_names()
+        self.bullet_point_marks = self.setup_material.get_marks(self.bullet_file)
+        self.ignores = self.setup_material.get_marks(self.ignore_file)
     
     def remove_ignore(self, str):
         it = str
@@ -80,7 +64,7 @@ class read_material:
             for index in range(page_numbers):
                 now_text = reader.getPage(index).extract_text().split('\n')
                 target_name, now_text = self.judge_title(now_text)
-                if target_name == '':
+                if target_name == "":
                     continue
                 current_contents[target_name] = self.get_target_title_page(now_text)
         return current_contents

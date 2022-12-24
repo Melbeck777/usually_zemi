@@ -3,44 +3,46 @@ import datetime
 import shutil
 from pathlib import Path
 import pandas as pd
+from .setup_material import setup_material
+from .read_material import read_material
+from .read_index import read_index
 
+TODAY = datetime.datetime.today()
 class make_index:
     def __init__(self, reference_folder, zemi_folder):
         self.reference_folder = reference_folder
-        self.schedule_file    = os.path.join(self.reference_folder,'schedule.txt') # zemi schedule
-        self.zemi_folder      = zemi_folder
-        self.template_folder  = os.path.join(self.zemi_folder, 'template')
+        self.zemi_folder = zemi_folder
+        self.setup_material = setup_material(reference_folder, zemi_folder)
+        self.read_material = read_material(reference_folder, zemi_folder)
+        self.read_index = read_index(reference_folder, zemi_folder)
+        self.current_index_data = self.read_index.get_each_day_contents()
 
-    def get_schedule(self, group_info):
-        schedule = []
-        term = 0
-        today = datetime.datetime.today()
-        if today.month < 3:
-            term = 1
-        path = os.path.join(self.reference_folder,'{}_schedule.csv'.format(today.year-term))
-        data = pd.read_csv(path)
-        columns = data.columns
-        for index,now_date in enumerate(data[columns[0]]):
-            now = "{} {}".format(now_date, data[group_info[1]][index])
-            today = datetime.datetime.strptime(now,'%Y/%m/%d %H:%M')
-            schedule.append(today)
-        return schedule
+    def compare_title(self, index_data, material_data):
+        res = index_data
+        for line in material_data:
+            if line not in res:
+                res.append(line)
+        return res
 
-    def create_translate_folder(self,date):
-        to_name = os.path.join(self.zemi_folder,'{}_{}'.format(date.month, date.day))
-        if os.path.exists(to_name) == False:
-            shutil.copytree(self.template_folder, to_name)
-        return to_name
+    def compare_current_date(self, date):
+        current_date_line  = self.setup_material.index_today_name(date)
+        file_name = self.setup_material.make_today_folder(date)
+        material_data = self.read_material.get_contents_value(file_name)
+        if current_date_line not in self.current_index_data:
+            return material_data
+        index_data = self.current_index_data[current_date_line]
+        for title in material_data:
+            if title not in index_data[current_date_line]:
+                index_data[current_date_line][title] = material_data[title]
+                continue
+            index_data[current_date_line][title] = self.compare_title(index_data[current_date_line][title], material_data[title])
+        return index_data
 
-    def get_editor_name(self,path):
-        return os.path.basename(path).split('_')[0]
-
-    def translate_pptx(self, date):
-        date_folder = self.create_translate_folder(date)
-        for ppt in Path(date_folder).glob('*.pptx'):
-            editor_name = self.get_editor_name(ppt)
-            to_name = os.path.join(date_folder, '{}_{:0>4}{:0>2}{:0>2}.pptx'.format(editor_name,date.year,date.month,date.day))
-            if os.path.exists(to_name) == False:
-                shutil.move(ppt,to_name)
-                print('{} => {}'.format(ppt,to_name))
-        return to_name.replace('pptx','pdf')
+    def all_date_index(self, group_info):
+        schedule = self.setup_material.get_schedule(group_info)
+        index_data = {}
+        for date in schedule:
+            if date > TODAY:
+                return index_data
+            index_data = self.compare_current_date(date)
+        return index_data
