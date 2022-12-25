@@ -58,9 +58,6 @@ class setup_material:
 
     def today_name(self, date):
         return "{}{:0>2}{:0>2}".format(date.year,date.month,date.day)
-    
-    def index_today_name(self, date):
-        return "{}/{}/{}".format(date.year,date.month,date.day)
 
     def make_today_folder(self,date):
         to_name = os.path.join(self.zemi_folder,self.today_name(date))

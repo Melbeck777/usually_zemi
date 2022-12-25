@@ -14,8 +14,7 @@ class read_material:
     
     def remove_ignore(self, str):
         it = str
-        ignores = self.get_marks(self.ignore_file)
-        for ignore in ignores:
+        for ignore in self.ignores:
             if ignore in it:
                 it = it[len(ignore)+1:]
         return it
@@ -41,7 +40,7 @@ class read_material:
         for it in txt:
             it = self.remove_ignore(it)
             bullet_flag = False
-            for bullet in self.bullet_points_marks:
+            for bullet in self.bullet_point_marks:
                 if bullet not in it:
                     continue
                 bullet_flag = True

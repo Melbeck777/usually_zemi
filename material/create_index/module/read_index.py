@@ -29,9 +29,11 @@ class read_index:
             row = index_str.split("\n")
             current_date = ""
             for line in row:
+                if len(line) == 0:
+                    continue
                 if line[0] == "-":
-                    current_date = line.split(' ')[1]
-                    current = datetime.datetime.strptime(current_date, '%Y/%m/%d')
+                    current = datetime.datetime.strptime(line.split(' ')[1], '%Y/%m/%d')
+                    current_date = self.setup_material.today_name(current)
                     if self.sep_date < current:
                         each_days_contents[current_date] = {}
                     else:
