@@ -1,17 +1,17 @@
-## Purpose
+## 目的
 毎週行われるゼミの議事録を自動的に生成するためのコード．
 開発経緯は，議事録の作成時に抜き出す情報が個人個人の資料の初めの「進捗報告」と「今後の予定」のみであったため，人がやるべき作業ではないと感じたため自動化した．
 
-## How to create summary
+## 利用方法
 
-### Set up
+### セットアップ
 `create_summary`を自分のPCにコピーしてください．\
 `create_summary`下で以下のコマンドを実行してください．
 ```
 pip install -r requirements.txt
 ```
 
-### Folder structure
+### フォルダ構成
 ```
 │  bullet_marks.txt
 │  create_summary.py
@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 <div style="page-break-before:always"></div>
 
-### Use
+### 使用
 1. ゼミの日にまとめられているフォルダをpdfフォルダに入れる
 2. `create_summary.py`を`create_summary`直下で実行
    ```
@@ -52,7 +52,7 @@ pip install -r requirements.txt
    ```
 
 
-## Caution
+## 注意
 - 先週以前の議事録ファイルについてはoutからpdf内の該当フォルダに移動します.
   - 複数の議事録が乱立して，共有フォルダにコピーするときに編集後のファイルを上書きしないため
 - 編集後はファイル名の中にある自分の名前を消してからアップロードしてください
@@ -64,7 +64,7 @@ pip install -r requirements.txt
      - 該当する日以外の自分の名前の書いてあるファイルを消さないでください． 
   4. 共有フォルダにアップロードする
 
-## Member database
+## 班員のデータベースの構成
 `year_member.xlsx`の構造
 
 |学年|氏|名|セイ|メイ|氏名|セイメイ|学籍番号|メアド|研究室|大臣|研究班|
@@ -73,14 +73,14 @@ pip install -r requirements.txt
 
 <div style="page-break-before:always"></div>
 
-## Flowchart
+## フローチャート
 <div align="center">
   <img src="img/flowchart.jpg" title="Flowchart" width="50%">
 </div>
 
 <div style="page-break-before:always"></div>
 
-## Next tasks
+## 次の課題
 - [x] create_summaryのモジュール化
   - [x] get_lab_data
   - [x] read_summary
@@ -97,6 +97,14 @@ pip install -r requirements.txt
   - [ ] 議事録の修正
     - [ ] 表示で全ての議事録を編集可能な状態で表示する
     - [ ] 編集後の保存が可能
+
+<div style="page-break-before:always"></div>
+
+## 工夫した点
+1. この `README.md`を読み込んで、資料から読み出すタイトルを決定したこと
+2. 議事録にメモをした後に、資料をアップロードしてもメモの内容を保持して、資料の内容を追記するようにしたこと
+3. 個人情報をプログラム外にあるファイルから取得するようにしたこと。
+4. 1つの巨大なファイルで完結するのではなくモジュール化して分解したこと。
 
 <div style="page-break-before:always"></div>
 
