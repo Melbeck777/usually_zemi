@@ -20,9 +20,11 @@
                         {{ meeting.day }}
                       </dt>
                       <div v-show="summary_open_list[key]">
-                          <textarea cols="50">{{ meeting.content }}</textarea>
+                          <textarea class="content" v-show="edit_flag[key]" cols="50">{{ meeting.content }}</textarea>
+                          <p class="content read-only" v-show="edit_flag[key] == false">{{ meeting.content }}</p>
                           <button v-on:click="get_summary(key)">読み込み</button>
                           <button v-on:click="save_summary(key)">保存</button>
+                          <button v-on:click="edit_summary(key)">編集</button>
                       </div>
                   </dl>
               </div>
@@ -38,6 +40,7 @@ export default {
       return {
           group_flag:false,
           summary_open_list:[],
+          edit_flag:[],
           member_select:[]
       };
   },
@@ -47,6 +50,7 @@ export default {
           if (this.summary_open_list.length != this.group.meeting.length) {
               for(let index = 0; index < this.group.meeting.length; index++) {
                   this.summary_open_list.push(false)
+                  this.edit_flag.push(false)
               }
           } 
           if (this.member_select.length != this.group.member.length){
@@ -75,6 +79,9 @@ export default {
       },
       save_summary: function(key) {
           console.log("save ",key)
+      },
+      edit_summary: function(key) {
+        this.edit_flag.splice(key, 1, !this.edit_flag[key])
       }
   }
 }
@@ -116,8 +123,8 @@ textarea {
 button {
   background-color: orange;
   color:white;
-  font: 10px bold;
-  padding: 15px;
+  font: 20px bold;
+  padding: 5px 10px;
   margin: 5px 10px;
 }
 button:hover, .person:hover, .selected_person{
@@ -139,5 +146,20 @@ button:hover, .person:hover, .selected_person{
   background-color: #777;
   margin: 10px;
   cursor: pointer;
+}
+.content {
+  white-space: pre-wrap;
+  text-align: left;
+}
+.read-only {
+  font-size:20px;
+  color:black;
+  width:auto;
+  height:auto;
+  background-color: white;
+  max-width: 600px;
+  border: black solid 0.1em;
+  margin:auto;
+  padding: 10px;
 }
 </style>
