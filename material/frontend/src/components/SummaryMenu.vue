@@ -3,10 +3,7 @@
         <form>
             <div class="form-group year">
                 <label>年度</label>
-                <input
-                    type="number"
-                    :value="year"
-                    v-model="year"/>
+                <input type="number" v-model="year"/>
             </div>
             
         </form>

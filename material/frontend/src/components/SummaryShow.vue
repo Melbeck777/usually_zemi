@@ -1,35 +1,34 @@
 <template>
   <div id="drop-down">
-      <dl>
-          <dt class="meeting_list" v-bind:class="{group_flag}" 
-            @click="select_group">
-            {{ group.name }}
-          </dt>
-          <dd v-show="group_flag">
-              <h1>メンバー</h1>
-              <div class="member">
-                  <div class="get-person" v-for="(person, key) in group.member" v-bind:key="key">
-                      <p v-on:click="select(key)" :class="select_person(key)">{{ person }}</p>
-                  </div>
-              </div>
-              
-              <div class="meeting" v-for="(meeting, key) in group.meeting" v-bind:key="key">
-                  <dl>
-                      <dt class="summary_content" v-bind:class="{summary_open_list}"
-                        @click="summary_select_group(key)">
-                        {{ meeting.day }}
-                      </dt>
-                      <div v-show="summary_open_list[key]">
-                          <textarea class="content" v-show="edit_flag[key]" cols="50">{{ meeting.content }}</textarea>
-                          <p class="content read-only" v-show="edit_flag[key] == false">{{ meeting.content }}</p>
-                          <button v-on:click="get_summary(key)">読み込み</button>
-                          <button v-on:click="save_summary(key)">保存</button>
-                          <button v-on:click="edit_summary(key)">編集</button>
-                      </div>
-                  </dl>
-              </div>
-          </dd>
-      </dl>
+    <dl>
+      <dt class="meeting_list" v-bind:class="{group_flag}" 
+        @click="select_group">
+        {{ group.name }}
+      </dt>
+      <dd v-show="group_flag">
+        <h1>メンバー</h1>
+        <div class="member">
+          <div class="get-person" v-for="(person, key) in group.member" v-bind:key="key">
+              <p v-on:click="select(key)" :class="select_person(key)">{{ person }}</p>
+          </div>
+        </div>
+        <div class="meeting" v-for="(meeting, key) in group.meeting" v-bind:key="key">
+          <dl>
+            <dt class="summary_content" v-bind:class="{summary_open_list}"
+              @click="summary_select_group(key)">
+              {{ meeting.day }}
+            </dt>
+            <div v-show="summary_open_list[key]">
+                <textarea class="content" v-show="edit_flag[key]" cols="50">{{ meeting.content }}</textarea>
+                <p class="content read-only" v-show="edit_flag[key] == false">{{ meeting.content }}</p>
+                <button v-on:click="get_summary(key)">読み込み</button>
+                <button v-on:click="save_summary(key)">保存</button>
+                <button v-on:click="edit_summary(key)">編集</button>
+            </div>
+          </dl>
+        </div>
+      </dd>
+    </dl>
   </div>
 </template>
 
@@ -38,27 +37,24 @@ export default {
   props:['group'],
   data() {
       return {
-          group_flag:false,
-          summary_open_list:[],
-          edit_flag:[],
-          member_select:[]
+        group_flag:false,
+        summary_open_list:[],
+        edit_flag:[],
+        member_select:[]
       };
+  },
+  mounted:function() {
+    for(let index = 0; index < this.group.meeting.length; index++) {
+      this.summary_open_list.push(false)
+      this.edit_flag.push(false)
+    }
+    for(let index = 0; index < this.group.member.length; index++) {
+      this.member_select.push(false)
+    }
   },
   methods:{
       select_group: function() {
           this.group_flag = !this.group_flag
-          if (this.summary_open_list.length != this.group.meeting.length) {
-              for(let index = 0; index < this.group.meeting.length; index++) {
-                  this.summary_open_list.push(false)
-                  this.edit_flag.push(false)
-              }
-          } 
-          if (this.member_select.length != this.group.member.length){
-              for(let index = 0; index < this.group.member.length; index++) {
-                  this.member_select.push(false)
-              }
-          }
-
       },
       select: function(key) {
           this.member_select.splice(key, 1, !this.member_select[key])

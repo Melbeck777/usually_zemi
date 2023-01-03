@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import SummaryMenu from './components/SummaryMenu.vue'
 import SummaryShow from './components/SummaryShow.vue'
+import SelectGroup from './components/SelectGroup.vue'
 import Top from './components/Top.vue'
 
 const routes = [
@@ -16,6 +17,11 @@ const routes = [
     },
     {
         path:'/summary/:year',
+        name:'select_group',
+        component:SelectGroup
+    },
+    {
+        path:'/summary/:year/:lab/:group',
         name:'summary_show',
         component:SummaryShow
     }
