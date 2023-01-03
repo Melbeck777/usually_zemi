@@ -1,15 +1,17 @@
 import datetime
 import pandas as pd
 import os
+from pathlib import Path
 
 # dayの初期値
 TODAY = datetime.datetime.today()
 
 class get_lab_member:
-    def __init__(self,day=TODAY):
+    def __init__(self,day=TODAY, reference_folder="."):
+        self.reference_folder = reference_folder
         self.day = day
         self.term = self.get_term()
-        self.member_data_file = "./member/{}_member.xlsx".format(str(self.day.year-self.term))
+        self.member_data_file = os.path.join(reference_folder,"member", "{}_member.xlsx".format(str(self.day.year-self.term)))
         self.member_data = pd.read_excel(self.member_data_file)
         
         # 研究室，研究班，学年，氏
@@ -27,6 +29,7 @@ class get_lab_member:
         # 二回目のゼミ以降
         self.sep_date = datetime.datetime(2022,10,13)
     
+
     def get_term(self):
         if self.day.month < 4:
             return 1
@@ -35,7 +38,7 @@ class get_lab_member:
     # 複数の研究室と協働でメンバーの情報を共有しているため、研究室名の取得
     def get_lab_names(self):
         res = []
-        for it in self.all_lab_member[self.target_index[0]].unique():
+        for it in self.all_lab_member:
             if type(it) is float:
                 continue
             res.append(it)
@@ -48,6 +51,16 @@ class get_lab_member:
             if type(element) is float:
                 continue
             res.append([lab_group_list[self.columns[self.target_index[0]]][index], element])
+        res = sorted(res)
+        return res
+
+    def create_lab_group_pair(self):
+        res = {}
+        lab_names = self.get_lab_names()
+        for name in lab_names:
+            res[name] = []
+        for pair in self.lab_group_list:
+            res[pair[0]].append(pair[1])
         return res
 
     # メンバーデータを取得する際の形を先に作っておく
@@ -95,7 +108,7 @@ class get_lab_member:
     
     # 記載する項目の取得
     def get_title_names(self):
-        path = 'READMe.md'
+        path = os.path.join(self.reference_folder,"READMe.md")
         title_names = []
         target = '<!-- title -!>'
         with open(path, 'r', encoding='utf-8') as f:
@@ -108,7 +121,7 @@ class get_lab_member:
         return title_names
 
     def get_schedule(self, group_info):
-        schedule_path = os.path.join("schedule", group_info[0],"{}_schedule.csv".format(self.day.year-self.term))
+        schedule_path = os.path.join(self.reference_folder,"schedule", group_info[0],"{}_schedule.csv".format(self.day.year-self.term))
         schedule = pd.read_csv(schedule_path, encoding="utf-8")
         group_schedule = []
         for index, element in enumerate(schedule["day"]):
@@ -117,12 +130,12 @@ class get_lab_member:
         return group_schedule
 
 class get_lab_data(get_lab_member):
-    def __init__(self, group_info, day):
+    def __init__(self, group_info, day, reference_folder='.'):
         self.group_info = group_info
         self.day = day
-        self.pdf_folder = os.path.join("pdf", group_info[0], group_info[1])
-        self.out_folder = os.path.join("out", group_info[0], group_info[1])
-        super().__init__(day)
+        self.pdf_folder = os.path.join(reference_folder, "pdf", group_info[0], group_info[1])
+        self.out_folder = os.path.join(reference_folder, "out", group_info[0], group_info[1])
+        super().__init__(day,reference_folder)
 
     # 発表者の情報を取得する
     def get_presenter(self):
@@ -192,5 +205,7 @@ class get_lab_data(get_lab_member):
     pdf/20221010
     のように班員の資料が保存されたフォルダがあるのでそれを作るための準備
     '''
-    def today_summary_folder(self):
-        return '{:0>4}{:0>2}{:0>2}'.format(str(self.day.year),str(self.day.month),str(self.day.day))
+    def today_summary_folder(self,date=None):
+        if date == None:
+            date = self.day
+        return '{:0>4}{:0>2}{:0>2}'.format(str(date.year),str(date.month),str(date.day))
