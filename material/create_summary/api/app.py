@@ -7,8 +7,11 @@ sys.path.append("..")
 from module.get_lab_data import get_lab_member
 from module.read_summary import read_summary
 
-index_folder = r"../../frontend/dist"
-app = Flask(__name__,static_folder=index_folder)
+index_folder = "../../frontend/dist"
+static_folder = "{}/static".format(index_folder)
+print(index_folder)
+print(static_folder)
+app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
 
@@ -30,9 +33,10 @@ def split_content(content, presenter):
         res_content.append(current_txt)
     return res_content
 
-@app.route('/')
-def index():
-    return "Hello world"
+@app.route('/',defaults={'path':''})
+@app.route('/<path:path>')
+def index(path):
+    return render_template("index.html")
 
 
 # test_url = /summary/2022
@@ -66,13 +70,13 @@ def get_summary_data(year, lab_name, group_name):
     date = datetime.date(year, 4, 1)
     group_info = [lab_name, group_name]
     read_summary_object = read_summary(group_info, date, reference_folder="..")
-    res_summary_data = {"lab_name":lab_name, "group_name":group_name}
+    res_group_data = {"lab_name":lab_name, "group_name":group_name}
     member_list  = []
     meeting_list = []
     presenter = read_summary_object.lab_data.get_presenter()
     for name in presenter:
         member_list.append(name)
-    res_summary_data["member"] = member_list
+    res_group_data["member"] = member_list
     schedule = read_summary_object.lab_data.get_schedule(group_info)
     for index, day in enumerate(schedule):
         current_dict = {"day":show_date(day)}
@@ -83,8 +87,9 @@ def get_summary_data(year, lab_name, group_name):
             content = read_summary_object.get_summary_contents(today_summary_file_name, presenter)
             current_dict["content"] = split_content(content,presenter)
         meeting_list.append(current_dict)
-    res_summary_data["meeting"] = meeting_list
-    return jsonify(res_summary_data)
+    res_group_data["meeting"] = meeting_list
+    return jsonify(res_group_data)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run( port=5000, use_debugger=True, use_reloader=True)
+    # app.run()
