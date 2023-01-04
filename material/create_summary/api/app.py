@@ -8,7 +8,7 @@ from module.get_lab_data import get_lab_member
 from module.read_summary import read_summary
 
 index_folder = "../../frontend/dist"
-static_folder = "{}/static".format(index_folder)
+static_folder = "{}/_assets".format(index_folder)
 print(index_folder)
 print(static_folder)
 app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
@@ -67,6 +67,7 @@ return {
 # test_url = /summary/2022/Test1/a
 @app.route('/summary/<int:year>/<lab_name>/<group_name>', methods=['GET'])
 def get_summary_data(year, lab_name, group_name):
+    print("{}, {}, {}".format(year, lab_name, group_name))
     date = datetime.date(year, 4, 1)
     group_info = [lab_name, group_name]
     read_summary_object = read_summary(group_info, date, reference_folder="..")
@@ -88,6 +89,7 @@ def get_summary_data(year, lab_name, group_name):
             current_dict["content"] = split_content(content,presenter)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
+    print(res_group_data)
     return jsonify(res_group_data)
 
 if __name__ == "__main__":
