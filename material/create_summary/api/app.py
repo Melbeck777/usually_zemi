@@ -83,7 +83,7 @@ def get_summary_data(year, lab_name, group_name):
         current_dict = {"day":show_date(day)}
         today_summary_file_name = read_summary_object.get_summary_file_name(member_list[index%len(member_list)],day)
         if os.path.exists(today_summary_file_name) == False:
-            current_dict["content"] = ""
+            current_dict["content"] = ["" for i in range(len(presenter))]
         else:
             content = read_summary_object.get_summary_contents(today_summary_file_name, presenter)
             current_dict["content"] = split_content(content,presenter)
