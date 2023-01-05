@@ -38,7 +38,14 @@ def split_content(content, presenter):
 def index(path):
     return render_template("index.html")
 
-
+'''
+return {
+    [
+        lab:lab_name, // string
+        group:group //list
+    ]
+}
+'''
 # test_url = /summary/2022
 @app.route('/summary/<int:year>', methods=['GET'])
 def get_lab_group(year):
@@ -89,9 +96,7 @@ def get_summary_data(year, lab_name, group_name):
             current_dict["content"] = split_content(content,presenter)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
-    print(res_group_data)
     return jsonify(res_group_data)
 
 if __name__ == "__main__":
     app.run( port=5000, use_debugger=True, use_reloader=True)
-    # app.run()
