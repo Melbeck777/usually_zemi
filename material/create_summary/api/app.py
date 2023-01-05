@@ -25,12 +25,12 @@ def split_content(content, presenter):
         for title in content[name]:
             if len(content[name][title]) == 0:
                 continue
-            current_txt += title
+            current_txt += "{}\n".format(title)
             for txt in content[name][title]:
                 if len(txt) == 0:
                     continue
-                current_txt += "\n\t{}".format(txt)
-        res_content.append(current_txt)
+                current_txt += "\t{}\n".format(txt)
+        res_content.append(current_txt[:-2])
     return res_content
 
 @app.route('/',defaults={'path':''})
