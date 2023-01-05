@@ -5,18 +5,20 @@ import shutil
 from .get_lab_data import get_lab_data
 
 class read_summary:
-    def __init__(self, group_info, day):
+    def __init__(self, group_info, day, reference_folder=".", zemi_folder="."):
         self.group_info = group_info
         self.day = day
+        self.reference_folder = reference_folder
+        self.zemi_folder = zemi_folder
         self.template = self.get_template()
-        self.lab_data = get_lab_data(group_info,day)
+        self.lab_data = get_lab_data(group_info,day,reference_folder)
         self.out_folder = self.lab_data.out_folder
         self.pdf_folder = self.lab_data.pdf_folder
 
 
     # 議事録のテンプレートを取得
     def get_template(self):
-        template_path = 'year_month_day.txt'
+        template_path = os.path.join(self.reference_folder,"year_month_day.txt")
         template_summary = []
         with open(template_path, 'r', encoding='utf-8') as f:
             file_text = f.read().split('\n')
@@ -31,18 +33,24 @@ class read_summary:
         return template_summary
 
     # 編集者の名前を消した議事録のファイル名の生成
-    def today_summary_file(self):
-        return '{}_{:0>2}_{:0>2}_{}.txt'.format(str(self.day.year),str(self.day.month),str(self.day.day),self.group_info[1])
+    def today_summary_file(self, day=None):
+        if day == None:
+            day = self.day
+        return '{}_{:0>2}_{:0>2}_{}.txt'.format(str(day.year),str(day.month),str(day.day),self.group_info[1])
 
 
     # 議事録に作成者の名前があるファイルの生成
-    def add_editor_name(self, person_name):
-        return '{}_{:0>2}_{:0>2}_{}_{}.txt'.format(str(self.day.year),str(self.day.month),str(self.day.day),person_name,self.group_info[1])
+    def add_editor_name(self, person_name, day=None):
+        if day == None:
+            day = self.day
+        return '{}_{:0>2}_{:0>2}_{}_{}.txt'.format(str(day.year),str(day.month),str(day.day),person_name,self.group_info[1])
 
-    def get_summary_file_name(self, person_name):
-        file_names = [self.today_summary_file(), self.add_editor_name(person_name)]
+    def get_summary_file_name(self, person_name, day=None):
+        if day == None:
+            day = self.day
+        file_names = [self.today_summary_file(day), self.add_editor_name(person_name,day)]
         folder_names = [self.out_folder, self.pdf_folder]
-        day_folder = self.lab_data.today_summary_folder()
+        day_folder = self.lab_data.today_summary_folder(day)
         for folder_name in folder_names:
             current_folder = os.path.join(folder_name, day_folder)
             for file_name in file_names:
@@ -108,6 +116,6 @@ class read_summary:
                 current_name = content
             elif cnt == 1 and content[1:] in member_data[current_name]:
                 current_title = content[1:]
-            else:
+            elif content[cnt:] != "":
                 member_data[current_name][current_title].append(content[cnt:])
         return member_data
