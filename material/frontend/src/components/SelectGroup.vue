@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     data() {
         return {
@@ -43,25 +45,20 @@ export default {
                 group:""
             },
             group_list:[],
-            lab_group:[
-                {
-                    lab:"Test1",
-                    group:["a", "b", "c"]
-                },
-                {
-                    lab:"Test2",
-                    group:["d", "e", "f"]
-                }
-            ],
+            lab_group:[],
             res_data:{},
         }
+    },
+    created() {
+        axios.get(this.$route.path).then((result) => {
+            this.lab_group = JSON.parse(JSON.stringify(result.data))
+        })
     },
     methods:{
         get_group_list:function() {
             for(let index = 0; index < this.lab_group.length; index++) {
                 if (this.lab_group[index].lab === this.selects.lab) {
                     this.group_list = this.lab_group[index].group
-                    console.log(this.group_list)
                     break
                 }
             }
