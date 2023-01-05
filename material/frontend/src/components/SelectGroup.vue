@@ -52,7 +52,8 @@ export default {
                     lab:"Test2",
                     group:["d", "e", "f"]
                 }
-            ]
+            ],
+            res_data:{},
         }
     },
     methods:{
@@ -66,7 +67,8 @@ export default {
             }
         },
         decide:function() {
-            this.$router.push({path:`/summary/${this.$route.params.year}/${this.selects.lab}/${this.selects.group}`})
+            let url = `/summary/${this.$route.params.year}/${this.selects.lab}/${this.selects.group}`
+            this.$router.push({path:url})
         }
     }
 }
@@ -74,6 +76,9 @@ export default {
 
 
 <style>
+table {
+    margin:auto;
+}
 td {
     margin:10px;
     padding:5px;

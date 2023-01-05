@@ -22,6 +22,7 @@ export default {
     methods:{
         go:function() {
             this.$router.push({path:`/summary/${this.year}`})
+            // this.$router.push({path:`/summary/${this.year}`})
         }
     }
 }
