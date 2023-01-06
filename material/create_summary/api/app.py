@@ -32,6 +32,13 @@ def split_content(content, presenter):
         res_content.append(current_txt[:-1])
     return res_content
 
+def list_to_string(str_list):
+    res = ""
+    for line in str_list:
+        res += "{}\n".format(line)
+    return res[:-1]
+
+
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
 def index(path):
@@ -40,8 +47,8 @@ def index(path):
 '''
 return {
     [
-        lab:lab_name, // string
-        group:group //list
+        lab:string,
+        group:list
     ]
 }
 '''
@@ -56,20 +63,21 @@ def get_lab_group(year):
         res_lab_group_list.append({"lab":lab_name,"group":lab_data[lab_name]})
     return jsonify(res_lab_group_list)
 
+
 '''
 return {
-    lab_name:name,
-    group_name:name,
-    member:[],
+    lab_name:string,
+    group_name:string,
+    member:list,
     meeting:[
         {
-            day:date,
-            content:content
+            day:year/month/day.
+            content:list,
+            announcement:string
         }
     ]
 }
 '''
-
 # test_url = /summary/2022/Test1/a
 @app.route('/summary/<int:year>/<lab_name>/<group_name>', methods=['GET'])
 def get_summary_data(year, lab_name, group_name):
@@ -90,12 +98,19 @@ def get_summary_data(year, lab_name, group_name):
         today_summary_file_name = read_summary_object.get_summary_file_name(member_list[index%len(member_list)],day)
         if os.path.exists(today_summary_file_name) == False:
             current_dict["content"] = ["" for i in range(len(presenter))]
+            current_dict["announcement"] = []
         else:
             content = read_summary_object.get_summary_contents(today_summary_file_name, presenter)
-            current_dict["content"] = split_content(content,presenter)
+            current_dict["content"] = split_content(content,presenter) 
+            announcement = read_summary_object.get_announcements(today_summary_file_name,presenter)
+            current_dict["announcement"] = list_to_string(announcement)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
     return jsonify(res_group_data)
+
+
+
+
 
 if __name__ == "__main__":
     app.run( port=5000, use_debugger=True, use_reloader=True)
