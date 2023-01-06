@@ -30,7 +30,7 @@ def split_content(content, presenter):
                 if len(txt) == 0:
                     continue
                 current_txt += "\t{}\n".format(txt)
-        res_content.append(current_txt[:-2])
+        res_content.append(current_txt[:-1])
     return res_content
 
 @app.route('/',defaults={'path':''})
