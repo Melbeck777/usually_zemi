@@ -2,12 +2,11 @@
     <div class="summary_menu">
         <form>
             <div class="form-group year">
-                <label>年度</label>
+                <p>年度</p>
                 <input type="number" v-model="year"/>
+                <button v-on:click="go">Go</button>
             </div>
-            
         </form>
-        <button v-on:click="go">Go</button>
     </div>
 </template>
 
@@ -17,6 +16,11 @@ export default {
     data() {
         return  {
             year:date.getFullYear()
+        }
+    },
+    created() {
+        if (date.getMonth() < 4) {
+            this.year = date.getFullYear()-1;
         }
     },
     methods:{
@@ -32,8 +36,9 @@ export default {
 <style>
 .form-group {
     color:black;
-    font-size: 20px;
+    font-size: 30px;
     text-align: center;
+    margin:10px;
 }
 input  {
     max-width: 100px;

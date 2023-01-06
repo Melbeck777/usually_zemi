@@ -1,9 +1,7 @@
 <template>
     <div class="select">
         <table>
-            <tr>
-                <td><label>研究室</label></td>
-                
+            <tr>             
                 <td>
                     <select v-model="selects.lab" class="select-lab">
                         <option disabled value="">研究室</option>
@@ -17,7 +15,6 @@
                 <td><button v-on:click="get_group_list">Reload</button></td>
             </tr>
             <tr>
-                <td><label>研究班</label></td>
                 <td>
                     <select v-model="selects.group">
                         <option disabled value="">研究班</option>
@@ -47,6 +44,7 @@ export default {
             group_list:[],
             lab_group:[],
             res_data:{},
+            reference_folder:".",
         }
     },
     created() {
@@ -79,9 +77,11 @@ table {
 td {
     margin:10px;
     padding:5px;
-    font-size: 20px;
+    font-size: 25px;
+    height:40px;
+    max-width: 400px;
 }
-html {
-    background-color: #24eff2;
+input {
+    width: 100px;
 }
 </style>
