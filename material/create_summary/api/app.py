@@ -9,8 +9,7 @@ from module.read_summary import read_summary
 
 index_folder = "../../frontend/dist"
 static_folder = "{}/_assets".format(index_folder)
-print(index_folder)
-print(static_folder)
+reference_folder = ".."
 app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
@@ -51,7 +50,7 @@ return {
 def get_lab_group(year):
     date = datetime.date(year,4,1)
     res_lab_group_list = []
-    lab_member = get_lab_member(date, "..")
+    lab_member = get_lab_member(date, reference_folder)
     lab_data = lab_member.create_lab_group_pair()
     for lab_name in lab_data:
         res_lab_group_list.append({"lab":lab_name,"group":lab_data[lab_name]})
@@ -77,7 +76,7 @@ def get_summary_data(year, lab_name, group_name):
     print("{}, {}, {}".format(year, lab_name, group_name))
     date = datetime.date(year, 4, 1)
     group_info = [lab_name, group_name]
-    read_summary_object = read_summary(group_info, date, reference_folder="..")
+    read_summary_object = read_summary(group_info, date, reference_folder=reference_folder)
     res_group_data = {"lab_name":lab_name, "group_name":group_name}
     member_list  = []
     meeting_list = []
