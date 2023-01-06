@@ -5,9 +5,11 @@
         {{ group_info.group_name }}
       </dt>
       <dd v-show="group_flag">
+        <p class="count_meeting">ゼミ {{ meeting.length }}回</p>
+        <p :class="select_person(all_member_flag)" class="all_member" @click="select_all_member">all</p>
         <div class="member_show">
           <div class="load_person" v-for="(person, person_key) in group_info.member" :key="person_key">
-            <p :class="select_person(person_key)" @click="select(person_key)">{{ person }}</p>
+            <p :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
           </div>
         </div>
 
@@ -15,21 +17,25 @@
           <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
             <p class="summary_day" :class="{summary_open_list}" @click="select_summary(meeting_key)">{{ current_meeting.day }}</p>
             <div v-show="summary_open_list[meeting_key]">
-              <div v-for="(person, person_key) in group_info.member" :key="person_key"> 
-                <p class="person content_person" @click="select_personal_summary(meeting_key, person_key)">
-                  {{ person }}
-                </p>
-                <div v-show="personal_summary[meeting_key][person_key]">
-                  <p v-show="edit_flag[meeting_key][person_key] === false" class="content read-only">
-                    {{ current_meeting.content[person_key] }}
+              <div v-for="(person, person_key) in group_info.member" :key="person_key">
+            
+                <div v-show="member_select[person_key]">
+                  <p class="person content_person" @click="select_personal_summary(meeting_key, person_key)">
+                    {{ person }}
                   </p>
-                  <textarea class="content" v-show="edit_flag[meeting_key][person_key]" cols="50" rows="10" v-model="meeting[meeting_key].content[person_key]">
-                    {{ current_meeting.content[person_key] }}
-                  </textarea>
-                  <br/>
-                  <button v-show="!edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Edit</button>
-                  <button v-show="edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Read</button>
+                  <div v-show="personal_summary[meeting_key][person_key]">
+                    <p v-show="edit_flag[meeting_key][person_key] === false" class="content read-only">
+                      {{ current_meeting.content[person_key] }}
+                    </p>
+                    <textarea class="content" v-show="edit_flag[meeting_key][person_key]" cols="100" rows="10" v-model="meeting[meeting_key].content[person_key]">
+                      {{ current_meeting.content[person_key] }}
+                    </textarea>
+                    <br/>
+                    <button v-show="!edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Edit</button>
+                    <button v-show="edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Read</button>
+                  </div>
                 </div>
+            
               </div>
               <button @click="save_summary(meeting_key, current_meeting.day)">Save</button>
               <button @click="load_summary(meeting_key, current_meeting.day)">Load</button>
@@ -54,6 +60,7 @@ export default {
         },
         meeting:[],
         group_flag:false,
+        all_member_flag:false,
         summary_open_list:[],
         personal_summary:[],
         edit_flag:[],
@@ -71,10 +78,16 @@ export default {
         this.member_select.splice(key, 1, !this.member_select[key])
         console.log(this.member_select)
       },
-      select_person: function(key) {
+      select_all_member:function() {
+        this.all_member_flag != this.all_member_flag
+        for(let index = 0; index < this.member_select.length; index++) {
+          this.member_select.splice(index, 1, !this.member_select[index])
+        }
+      },
+      select_person: function(flag) {
         return {
-            selected_person:this.member_select[key],
-            person:!this.member_select[key]
+            selected_person:flag,
+            person:!flag
         }
       },
       select_summary: function(key) {
@@ -140,6 +153,10 @@ export default {
 .meeting_show {
   margin-left: 60px;
 }
+.count_meeting {
+  font-size: 25px;
+  color: white;
+}
 dt {
   border-radius: 10px;
 }
@@ -186,6 +203,9 @@ button:hover, .person:hover, .selected_person{
 .content_person {
   margin-left: 90px;
 }
+.all_member {
+  display: inline-block;
+}
 .person, .selected_person, .content_person {
   font-size: 20px;
   color: #fff;
@@ -206,7 +226,7 @@ textarea {
 }
 .content {
   font-size:20px;
-  max-width: 600px;
+  max-width: 1000px;
   white-space: pre-wrap;
   text-align: left;
   width: auto;
