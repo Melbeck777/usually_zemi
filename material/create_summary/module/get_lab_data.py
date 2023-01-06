@@ -46,11 +46,15 @@ class get_lab_member:
 
     def get_lab_group_list(self):
         res = []
-        lab_group_list = self.member_data[[self.columns[self.target_index[0]], self.columns[self.target_index[1]]]].drop_duplicates()
-        for index, element in enumerate(lab_group_list[self.columns[self.target_index[1]]]):
-            if type(element) is float:
+        now_targets = [self.columns[self.target_index[0]], self.columns[self.target_index[1]]]
+        lab_group_list = self.member_data[now_targets].drop_duplicates()
+
+        for index in lab_group_list[now_targets[0]].keys():
+            lab_name = lab_group_list[now_targets[0]][index]
+            group_name = lab_group_list[now_targets[1]][index]
+            if type(group_name) is float:
                 continue
-            res.append([lab_group_list[self.columns[self.target_index[0]]][index], element])
+            res.append([lab_name, group_name])
         res = sorted(res)
         return res
 
@@ -86,6 +90,8 @@ class get_lab_member:
             group_name  = self.member_data[columns[self.target_index[1]]][index]
             degree      = self.member_data[columns[self.target_index[2]]][index]
             person_name = self.member_data[columns[self.target_index[3]]][index]
+            if (type(group_name) is float) or (type(degree) is float) or (type(person_name) is float):
+                continue 
             if degree == self.teacher_label:
                 lab_member[lab_name][self.teacher_label].append(person_name)
             elif degree == self.b3_label:
