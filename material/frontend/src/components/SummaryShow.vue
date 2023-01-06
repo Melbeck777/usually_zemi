@@ -12,34 +12,10 @@
             <p :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
           </div>
         </div>
-
         <div class="meeting_show">
           <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
-            <p class="summary_day" :class="{summary_open_list}" @click="select_summary(meeting_key)">{{ current_meeting.day }}</p>
-            <div v-show="summary_open_list[meeting_key]">
-              <div v-for="(person, person_key) in group_info.member" :key="person_key">
-            
-                <div v-show="member_select[person_key]">
-                  <p class="person content_person" @click="select_personal_summary(meeting_key, person_key)">
-                    {{ person }}
-                  </p>
-                  <div v-show="personal_summary[meeting_key][person_key]">
-                    <p v-show="edit_flag[meeting_key][person_key] === false" class="content read-only">
-                      {{ current_meeting.content[person_key] }}
-                    </p>
-                    <textarea class="content" v-show="edit_flag[meeting_key][person_key]" cols="100" rows="10" v-model="meeting[meeting_key].content[person_key]">
-                      {{ current_meeting.content[person_key] }}
-                    </textarea>
-                    <br/>
-                    <button v-show="!edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Edit</button>
-                    <button v-show="edit_flag[meeting_key][person_key]" @click="edit_summary(meeting_key, person_key)">Read</button>
-                  </div>
-                </div>
-            
-              </div>
-              <button @click="save_summary(meeting_key, current_meeting.day)">Save</button>
-              <button @click="load_summary(meeting_key, current_meeting.day)">Load</button>
-            </div>
+            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" @load_summary="fetch_data"
+            @save_summary="fetch_data"/>
           </div>
         </div>
       </dd>
@@ -49,6 +25,7 @@
 
 <script>
 import axios from 'axios';
+import SummaryContentShow from './SummaryContentShow.vue';
 
 export default {
   data() {
@@ -67,10 +44,16 @@ export default {
         member_select:[]
       };
   },
+  components:{
+    SummaryContentShow
+  },
   created() {
     this.fetch_data()
   },
   methods:{
+      hoge:function() {
+        console.log("hoge")
+      },
       select_group: function() {
         this.group_flag = !this.group_flag
       },
@@ -81,7 +64,7 @@ export default {
       select_all_member:function() {
         this.all_member_flag != this.all_member_flag
         for(let index = 0; index < this.member_select.length; index++) {
-          this.member_select.splice(index, 1, !this.member_select[index])
+          this.member_select.splice(index, 1, this.all_member_flag)
         }
       },
       select_person: function(flag) {
@@ -89,22 +72,6 @@ export default {
             selected_person:flag,
             person:!flag
         }
-      },
-      select_summary: function(key) {
-        this.summary_open_list.splice(key, 1, !this.summary_open_list[key])
-        console.log(this.summary_open_list)
-      },
-      select_personal_summary: function(meeting_key, person_key) {
-        this.personal_summary[meeting_key].splice(person_key, 1, !this.personal_summary[meeting_key][person_key])
-      },
-      load_summary: function(meeting_key, day) {
-        console.log(`load ${meeting_key} ${day}`)
-      },
-      save_summary: function(meeting_key, day) {
-          console.log(`save ${meeting_key} ${day}`)
-      },
-      edit_summary: function(meeting_key, content_key) {
-        this.edit_flag[meeting_key].splice(content_key, 1, !this.edit_flag[meeting_key][content_key])
       },
       fetch_data: function() {
         console.log("fetch_data")
@@ -118,24 +85,7 @@ export default {
           for(let index = 0; index < obj.member.length; index++) {
             this.member_select.push(false)
           }
-          for(let index = 0; index < obj.meeting.length; index++) {
-            this.summary_open_list.push(false)
-            this.edit_flag.push(this.member_select.slice(0, this.member_select.length))
-            this.personal_summary.push(this.member_select.slice(0, this.member_select.length))
-          }
         })
-        console.log("this.group_info")
-        console.log(this.group_info)
-        console.log("this.meeting")
-        console.log(this.meeting)
-        console.log("this.member_select")
-        console.log(this.member_select)
-        console.log("this.summary_open_list")
-        console.log(this.summary_open_list)
-        console.log("this.edit_flag")
-        console.log(this.edit_flag)
-        console.log("this.personal_summary")
-        console.log(this.personal_summary)
       }
   },
 }
@@ -169,19 +119,6 @@ dt::before{
 dt.group_flag::before {
   content: "-";
 }
-.summary_day {
-  position: relative;
-  background-color:rgb(235, 211, 211);
-  border: rgb(245, 235, 235) solid 0.1em;
-  max-width: 180px;
-  margin: 10px;
-  padding: 10px;
-  cursor: pointer;
-  white-space: pre-wrap;
-  text-align: center;
-  border-radius: 10px;
-  font-size: 20px;
-}
 button {
   background: linear-gradient(320deg, #da913f, #fcdcb7);
   color:black;
@@ -191,7 +128,7 @@ button {
   border: whitesmoke;
   border-radius: 10px;
 }
-button:hover, .person:hover, .selected_person{
+button:hover, .person:hover, .selected_person, .content_person:hover, .selected_content_person{
   opacity: 0.5;
 }
 .member_show {
@@ -200,20 +137,18 @@ button:hover, .person:hover, .selected_person{
 .load_person {
   display: inline-block;
 }
-.content_person {
-  margin-left: 90px;
-}
+
 .all_member {
   display: inline-block;
 }
-.person, .selected_person, .content_person {
+.person, .selected_person, .content_person, .selected_content_person {
   font-size: 20px;
   color: #fff;
   text-align: center;
   line-height: 60px;
   width: 80px;
   height: 60px;
-  background-color: #777;
+  background: linear-gradient(320deg, #3fc3da, #b7c9fc);
   cursor: pointer;
 }
 .person, .selected_person {
@@ -223,20 +158,5 @@ textarea {
   padding: 10px;
   max-height: fit-content ;
   text-align: left;
-}
-.content {
-  font-size:20px;
-  max-width: 1000px;
-  white-space: pre-wrap;
-  text-align: left;
-  width: auto;
-  border: black solid 0.1em;
-}
-.read-only {
-  color:black;
-  height:auto;
-  background-color: white;
-  padding: 10px;
-  margin:auto;
 }
 </style>
