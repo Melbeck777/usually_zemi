@@ -37,8 +37,10 @@
 
 
 <script>
+import axios from 'axios'
+
 export default {
-    props:["meeting", "member", "member_select"],
+    props:["meeting", "member", "member_select", "day_index"],
     data() {
         return {
             announcement_open:false,
@@ -66,8 +68,17 @@ export default {
         edit_summary:function(key) {
             this.edit_flag.splice(key, 1, !this.edit_flag[key])
         },
-        load_summary:function(day) {
-            console.log("load "+day)
+        load_summary:function() {
+            console.log("meeting")
+            console.log(this.meeting)
+            console.log("day_index")
+            console.log(this.day_index)
+            axios.post(this.$route.path, {
+                meeting:this.meeting,
+                day_index:this.day_index
+            }).then(function(response) {
+                console.log(response.data)
+            })
             this.$emit('load_summary')
         },
         save_summary:function(day) {

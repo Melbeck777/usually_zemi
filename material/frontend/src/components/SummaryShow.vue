@@ -14,8 +14,7 @@
         </div>
         <div class="meeting_show">
           <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
-            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" @load_summary="fetch_data"
-            @save_summary="fetch_data"/>
+            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" :day_index="meeting_key" @load_summary="fetch_data"  @save_summary="fetch_data"/>
           </div>
         </div>
       </dd>
@@ -62,7 +61,8 @@ export default {
         console.log(this.member_select)
       },
       select_all_member:function() {
-        this.all_member_flag != this.all_member_flag
+        console.log(this.all_member_flag)
+        this.all_member_flag = !this.all_member_flag
         for(let index = 0; index < this.member_select.length; index++) {
           this.member_select.splice(index, 1, this.all_member_flag)
         }
