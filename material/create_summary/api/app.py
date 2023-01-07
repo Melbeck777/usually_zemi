@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 import datetime
 import sys
@@ -6,6 +6,7 @@ import os
 sys.path.append("..")
 from module.get_lab_data import get_lab_member
 from module.read_summary import read_summary
+from module.make_summary import make_summary
 
 index_folder = "../../frontend/dist"
 static_folder = "{}/_assets".format(index_folder)
@@ -38,6 +39,21 @@ def list_to_string(str_list):
         res += "{}\n".format(line)
     return res[:-1]
 
+def summary_to_dict(summary, presenter):
+    titles = presenter.keys()
+    for index, name in enumerate(presenter):    
+        title_name = ""
+        summary[index] = summary[index].split("\n")
+        print(summary[index])
+        for line in summary[index]:
+            if line in titles:
+                title_name = line
+                continue
+            if title_name == "":
+                continue
+            print("{}, {}, {}".format(name,title_name, line))
+            presenter[name][title_name].append(line)
+    return presenter
 
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
@@ -109,8 +125,23 @@ def get_summary_data(year, lab_name, group_name):
     return jsonify(res_group_data)
 
 
-
-
+@app.route('/summary/<int:year>/<lab_name>/<group_name>', methods=['POST'])
+def load_summary(year, lab_name, group_name):
+    print(request.get_json())
+    post_data = request.get_json()
+    day_index = post_data['day_index']
+    meeting   = post_data['meeting']
+    print("day_index = {}".format(day_index))
+    print("meeting = {}".format(meeting))
+    edit_summary_content = meeting['content']
+    announcement = meeting['announcement']
+    make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
+    presenter = make_summary_object.lab_data.get_presenter()
+    edit_summary = summary_to_dict(edit_summary_content, presenter)
+    print(edit_summary)
+    
+    make_summary_object.create_one_day_summary_edited(day_index,edit_summary,announcement)
+    return jsonify({})
 
 if __name__ == "__main__":
     app.run( port=5000, use_debugger=True, use_reloader=True)

@@ -11,20 +11,20 @@ TODAY = datetime.datetime.today()
 ONE_WEEK_OFFSET = datetime.timedelta(weeks=1)
 
 class make_summary:
-    def __init__(self,group_info, day_index, sep_date=SEP_DATE):
+    def __init__(self,group_info, day_index, reference_folder=".", sep_date=SEP_DATE):
         self.group_info = group_info
-        self.lab_member = get_lab_member()
+        self.lab_member = get_lab_member(reference_folder=reference_folder)
         self.schedule = self.lab_member.get_schedule(group_info) 
         self.day = self.schedule[day_index]
         self.sep_date = sep_date
         self.pre_week_day = TODAY-ONE_WEEK_OFFSET
         self.next_week_day = TODAY+ONE_WEEK_OFFSET
-        self.lab_data     = get_lab_data(group_info,  self.day)
+        self.lab_data     = get_lab_data(group_info,  self.day, reference_folder)
         self.edit_order = self.lab_data.get_edit_order()
         self.edit_name = self.edit_order[day_index%len(self.edit_order)]
-        self.read_summary = read_summary(group_info,  self.day)
+        self.read_summary = read_summary(group_info,  self.day, reference_folder)
     
-        self.read_material = read_material(group_info,self.day, self.edit_name)
+        self.read_material = read_material(group_info,self.day, self.edit_name, reference_folder)
         self.bullet_names = self.lab_data.get_title_names()
         self.template   = self.read_summary.template
         self.out_folder = self.lab_data.out_folder
@@ -83,7 +83,7 @@ class make_summary:
                 for content in current_data:
                     current_summary.append("\t\t{}\n".format(content))
         return current_summary
-
+    
     def create_one_day_summary(self, day_index):
         day = self.schedule[day_index]
         summary_file_name = self.read_summary.get_summary_file_name(self.edit_name)
@@ -107,11 +107,31 @@ class make_summary:
         with open(summary_file_name,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
 
+    def create_one_day_summary_edited(self, day_index, edit_summary, announcement):
+        day = self.schedule[day_index]
+        current_edit_name = self.edit_order[day_index%len(self.edit_order)]
+        summary_file_name = self.read_summary.get_summary_file_name(current_edit_name)
+        if day > self.sep_date:
+            print("current")
+            member_data,counter = self.read_material.get_presenter_data()
+        else:
+            print("old")
+            member_data,counter = self.read_material.get_old_presenter_data()
+        print("{}, {}".format(counter, member_data))
+        if counter == 0:
+            return
+        member_data = self.compare_summary(edit_summary, member_data)
+        print(member_data)
+        current_summary_text = self.write_basic_info(announcement)
+        current_summary_text = self.create_summary_text(current_summary_text,member_data)
+        print('output file : ',summary_file_name)
+        if os.path.exists(self.out_folder) == False:
+            os.makedirs(self.out_folder)
+        with open(summary_file_name,'w',encoding='utf-8') as f:
+            f.writelines(current_summary_text)
+
     # 議事録を作る
     def create_summary(self):
         for day_index,day in enumerate(self.schedule):
             summary_file_name = self.read_summary.summary_file_name(day,self.group_info[1])
-            if self.next_week_day < day or self.pre_week_day > day:
-                self.read_summary.move_pre_summary(self.out_folder,summary_file_name,day)
-                continue
             self.create_one_day_summary(day_index)

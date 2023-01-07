@@ -6,11 +6,12 @@ import re
 from .get_lab_data import get_lab_data
 
 class read_material:
-    def __init__(self, group_info, day, edit_name):
+    def __init__(self, group_info, day, edit_name, reference_folder="."):
         self.group_info = group_info
         self.day        = day
         self.edit_name  = edit_name
-        self.lab_data   = get_lab_data(group_info,day)
+        self.reference_folder = reference_folder
+        self.lab_data   = get_lab_data(group_info,day,reference_folder)
         self.presenter  = self.lab_data.get_presenter()
         self.ignores    = self.get_ignores()
         self.pdf_folder = self.lab_data.pdf_folder
@@ -18,12 +19,14 @@ class read_material:
         self.bullet_marks = self.get_bullet_marks()
     
     def get_ignores(self):
-        with open("ignore.txt", "r", encoding="utf-8") as f:
+        ignore_file = os.path.join(self.reference_folder, "ignore.txt")
+        with open(ignore_file, "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
 
     def get_bullet_marks(self):
-        with open("bullet_marks.txt", "r", encoding="utf-8") as f:
+        bullet_marks_file = os.path.join(self.reference_folder, "bullet_marks.txt")
+        with open(bullet_marks_file, "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
 
