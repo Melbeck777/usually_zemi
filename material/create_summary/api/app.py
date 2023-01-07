@@ -112,15 +112,15 @@ def get_summary_data(year, lab_name, group_name):
     res_group_data["member"] = member_list
     schedule = read_summary_object.lab_data.get_schedule(group_info)
     for index, day in enumerate(schedule):
-        current_dict = {"day":show_date(day)}
+        current_presenter = read_summary_object.lab_data.get_presenter()
+        current_dict = {"day":show_date(day),"content":[],"announcement":[]}
         today_summary_file_name = read_summary_object.get_summary_file_name(member_list[index%len(member_list)],day)
         if os.path.exists(today_summary_file_name) == False:
-            current_dict["content"] = ["" for i in range(len(presenter))]
-            current_dict["announcement"] = []
+            current_dict["content"] = ["" for i in range(len(current_presenter))]
         else:
-            content = read_summary_object.get_summary_contents(today_summary_file_name, presenter)
-            current_dict["content"] = split_content(content,presenter) 
-            announcement = read_summary_object.get_announcements(today_summary_file_name,presenter)
+            content = read_summary_object.get_summary_contents(today_summary_file_name, current_presenter)
+            current_dict["content"] = split_content(content,current_presenter) 
+            announcement = read_summary_object.get_announcements(today_summary_file_name,current_presenter)
             current_dict["announcement"] = list_to_string(announcement)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
