@@ -12,4 +12,15 @@
 2. create_index
   - 過去の自分の資料<sup>[1](#note1)</sup>からインデックスを生成するコード
 
+
 <small id="note1">1:対象としている資料はパワーポイントで作成後にpdfにエクスポートしたものである．</small>
+
+### 使用方法
+
+**create_summary**
+```
+usual_zemi > cd material/frontend
+frontend > npm run build
+frontend > cd ../create_summary/api
+api > py app.py
+```

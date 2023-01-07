@@ -40,7 +40,7 @@
 import axios from 'axios'
 
 export default {
-    props:["meeting", "member", "member_select", "day_index"],
+    props:["meeting", "member", "member_select", "day_index", "titles"],
     data() {
         return {
             announcement_open:false,
@@ -73,9 +73,23 @@ export default {
             console.log(this.meeting)
             console.log("day_index")
             console.log(this.day_index)
+            let confirm_text = ""
+            for(let index = 0; index < this.titles.length; index++) {
+                if (index != 0){
+                    confirm_text += ", "
+                }
+                confirm_text += this.titles[index]
+            }
+            confirm_text += "\n上記のタイトルを含む資料を作成していますか？"
+            let sep_date_flag = false;
+            if(confirm(confirm_text)) {
+                sep_date_flag = true
+            }
             axios.post(this.$route.path, {
                 meeting:this.meeting,
-                day_index:this.day_index
+                day_index:this.day_index,
+                sep_date_flag:sep_date_flag
+                
             }).then(function(response) {
                 console.log(response.data)
             })

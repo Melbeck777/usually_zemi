@@ -14,7 +14,7 @@
         </div>
         <div class="meeting_show">
           <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
-            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" :day_index="meeting_key" @load_summary="fetch_data"  @save_summary="fetch_data"/>
+            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key" @load_summary="fetch_data"  @save_summary="fetch_data"/>
           </div>
         </div>
       </dd>
@@ -35,6 +35,7 @@ export default {
           member:[]
         },
         meeting:[],
+        titles:[],
         group_flag:false,
         all_member_flag:false,
         summary_open_list:[],
@@ -82,6 +83,7 @@ export default {
           this.group_info.group_name = obj.group_name
           this.group_info.member = obj.member
           this.meeting = obj.meeting
+          this.titles  = obj.titles
           for(let index = 0; index < obj.member.length; index++) {
             this.member_select.push(false)
           }
