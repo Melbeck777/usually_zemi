@@ -51,11 +51,12 @@ class make_summary:
         current_template.append("\n")
         return current_template
     
-# 
-    
     # 過去に作成した議事録との比較を行う
     def compare_same_title_summary(self,person_summary, person_data):
         for bullet_name in person_summary:
+            if bullet_name not in person_data:
+                person_data[bullet_name] = []
+                continue
             if len(person_data[bullet_name]) == 0:
                 continue
             current_data = person_summary[bullet_name]

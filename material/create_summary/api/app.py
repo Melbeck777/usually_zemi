@@ -14,6 +14,7 @@ reference_folder = ".."
 app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
+TODAY = datetime.datetime.today()
 
 def show_date(day):
     return "{}/{}/{}".format(day.year, day.month, day.day)
@@ -91,7 +92,8 @@ return {
             content:list,
             announcement:string
         }
-    ]
+    ],
+    titles:list
 }
 '''
 # test_url = /summary/2022/Test1/a
@@ -122,6 +124,7 @@ def get_summary_data(year, lab_name, group_name):
             current_dict["announcement"] = list_to_string(announcement)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
+    res_group_data["titles"] = list(presenter[member_list[0]].keys())
     return jsonify(res_group_data)
 
 
@@ -131,11 +134,16 @@ def load_summary(year, lab_name, group_name):
     post_data = request.get_json()
     day_index = post_data['day_index']
     meeting   = post_data['meeting']
+    sep_date_flag = post_data['sep_date_flag']
     print("day_index = {}".format(day_index))
     print("meeting = {}".format(meeting))
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
-    make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
+    if sep_date_flag:
+        make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
+    else:
+        sep_date = TODAY + datetime.timedelta(weeks=1)
+        make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder, sep_date)
     presenter = make_summary_object.lab_data.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
     print(edit_summary)
