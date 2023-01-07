@@ -14,7 +14,7 @@
         </div>
         <div class="meeting_show">
           <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
-            <SummaryContentShow :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key" @load_summary="fetch_data"  @save_summary="fetch_data"/>
+            <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting" :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key" @load_summary="fetch_data"  @save_summary="fetch_data"/>
           </div>
         </div>
       </dd>
@@ -59,13 +59,22 @@ export default {
       },
       select: function(key) {
         this.member_select.splice(key, 1, !this.member_select[key])
-        console.log(this.member_select)
+        if(!this.member_select[key]) {
+          for(let index = 0; index < this.meeting.length; index++) {
+            this.$refs.content_show[index].close_personal_summary(key)
+          }
+        }
       },
       select_all_member:function() {
         console.log(this.all_member_flag)
         this.all_member_flag = !this.all_member_flag
         for(let index = 0; index < this.member_select.length; index++) {
           this.member_select.splice(index, 1, this.all_member_flag)
+        }
+        if(!this.all_member_flag) {
+          for(let index = 0; index < this.meeting.length; index++) {
+            this.$refs.content_show[index].close_summary()
+          }
         }
       },
       select_person: function(flag) {

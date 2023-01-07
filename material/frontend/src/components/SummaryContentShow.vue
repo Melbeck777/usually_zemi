@@ -58,12 +58,26 @@ export default {
     methods:{
         select_summary:function() {
             this.summary_open = !this.summary_open
+            if(!this.summary_open) {
+                this.close_summary()
+            }
         },
         select_announcement:function() {
             this.announcement_open = !this.announcement_open
         },
+        close_summary:function() {
+            for(let index = 0; index < this.member_select.length; index++) {
+                this.personal_summary.splice(index, 1, false)
+                this.member_select.splice(index, 1, false)
+                this.edit_flag.splice(index, 1, false)
+            }
+        },
         select_personal_summary:function(key) {
             this.personal_summary.splice(key, 1, !this.personal_summary[key])
+        },
+        close_personal_summary:function(key) {
+            this.personal_summary.splice(key, 1, false)
+            this.edit_flag.splice(key, 1, false)
         },
         edit_summary:function(key) {
             this.edit_flag.splice(key, 1, !this.edit_flag[key])
