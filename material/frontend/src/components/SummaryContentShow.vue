@@ -1,13 +1,17 @@
 <template>
     <div class="container">
-        <p class="summary_day" @click="select_summary">
-            {{ meeting.day }}
-        </p>
-    
-        <div v-show="summary_open">
-            <p :class="!this.announcement_open ? 'announcement':'selected_announcement'" @click="select_announcement">
-                全体
+        <div class="summary_day_wrapper">
+            <p class="summary_day" @click="select_summary">
+                {{ meeting.day }}
             </p>
+        </div>
+        
+        <div v-show="summary_open">
+            <div class="circle_wrapper" v-show="announcement_button_flag">
+                <p :class="!this.announcement_open ? 'content_person':'selected_content_person'" @click="select_announcement">
+                    全体
+                </p>
+            </div>
             <div v-show="announcement_open">
                 <p class="content read-only">
                     {{ meeting.announcement }}
@@ -15,9 +19,11 @@
             </div>
             <div v-for="(person, person_key) in member" :key="person_key">
                 <div v-show="member_select[person_key]">
-                    <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
-                        {{ person }}
-                    </p>
+                    <div class="circle_wrapper">
+                        <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
+                            {{ person }}
+                        </p>
+                    </div>
                     <div v-show="personal_summary[person_key]">
                         <p v-show="edit_flag[person_key] === false" class="content read-only">
                             {{ meeting.content[person_key] }}
@@ -47,6 +53,7 @@ export default {
     data() {
         return {
             announcement_open:false,
+            announcement_button_flag:false,
             summary_open:false,
             personal_summary:[],
             edit_flag:[],
@@ -84,9 +91,19 @@ export default {
         close_summary:function() {
             for(let index = 0; index < this.member_select.length; index++) {
                 this.personal_summary.splice(index, 1, false)
+                this.edit_flag.splice(index, 1, false)
+            }
+        },
+        close_summary_member:function() {
+            for(let index = 0; index < this.member_select.length; index++) {
+                this.personal_summary.splice(index, 1, false)
                 this.member_select.splice(index, 1, false)
                 this.edit_flag.splice(index, 1, false)
             }
+        },
+        change_announcement_button() {
+            this.announcement_button_flag = !this.announcement_button_flag
+            console.log(this.announcement_button_flag)
         },
         select_personal_summary:function(key) {
             this.personal_summary.splice(key, 1, !this.personal_summary[key])
@@ -138,26 +155,30 @@ export default {
 </script>
 
 <style>
-.summary_day {
-    position: relative;
-    background-color:rgb(235, 211, 211);
-    border: rgb(245, 235, 235) solid 0.1em;
-    max-width: 180px;
+.summary_day{
+    /* border: rgb(245, 235, 235) solid 0.1em; */
+    max-width: 200px;
     margin: 10px;
     padding: 10px;
     cursor: pointer;
     white-space: pre-wrap;
     text-align: center;
     border-radius: 10px;
-    font-size: 20px;
+    font-size: 30px;
+    background-color: white;
+    /* border-color: linear-gradient(320deg, #3fc3da, #b7c9fc); */
+    border: 10px solid;
+    border-image-source: linear-gradient(320deg, #ca8585, #9785ca);
+    border-image-slice: 1;
 }
+
 .announcement, .selected_announcement {
-    font-size: 20px;
-    color: #fff;
+    font-size: 30px;
+    color: black;
     text-align: center;
     line-height: 60px;
     height: 60px;
-    background: linear-gradient(320deg, #3fc3da, #b7c9fc);
+    background: white;
     cursor: pointer;
     width: 100px;
     margin-left:90px;
@@ -165,9 +186,9 @@ export default {
 .announcement:hover, .selected_announcement {
     opacity: 0.5;
 }
-.content_person, .selected_content_person {
+/* .content_person, .selected_content_person {
     margin-left: 110px;
-}
+} */
 .content {
     font-size:20px;
     max-width: 1000px;

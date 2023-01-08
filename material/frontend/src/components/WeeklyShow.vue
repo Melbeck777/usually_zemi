@@ -1,23 +1,30 @@
 <template>
-    <div id="drop-down">
+    <div class="all_group_info">
         <div class="basic_info">
             <p class="basic_content">{{ group_info.group_name }}</p>
             <p class="basic_content">合計{{ meeting.length }}回</p>
         </div>
         <div class="member_show">
-            <p :class="select_person(all_member_flag)" class="all_member" @click="select_all_member">all</p>
-            <div class="load_person" v-for="(person, person_key) in group_info.member" :key="person_key">
-                <p :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
+            <div class="circle_wrapper">
+                <p :class="select_person(all_member_flag)"       class="all_member" @click="select_all_member">all</p>
             </div>
-        </div>
-        <div class="weekly_show">
-            <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
-                <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
-                    :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key"
-                    @load_summary="fetch_data"/>
+            <div class="circle_wrapper">
+                <p :class="select_person(all_announcement_flag)" class="all_member" @click="select_all_announcement">全体</p>
+            </div>
+            <div class="circle_wrapper" v-for="(person, person_key) in group_info.member" :key="person_key">
+                <p  :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
             </div>
         </div>
     </div>
+    <br/>
+    <div class="weekly_show">
+        <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
+            <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
+                :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key"
+                @load_summary="fetch_data"/>
+        </div>
+    </div>
+
 </template>
 
 <script>
@@ -38,6 +45,7 @@ export default {
             month_divide: [],
             month_flag: [],
             all_member_flag: false,
+            all_announcement_flag: false,
             summary_open_list: [],
             personal_summary: [],
             edit_flag: [],
@@ -69,6 +77,13 @@ export default {
                 for (let index = 0; index < this.meeting.length; index++) {
                     this.$refs.content_show[index].close_summary()
                 }
+            }
+        },
+        select_all_announcement() {
+            console.log(this.all_announcement_flag)
+            this.all_announcement_flag = !this.all_announcement_flag
+            for (let index = 0; index < this.meeting.length; index++) {
+                this.$refs.content_show[index].change_announcement_button()
             }
         },
         select_person(flag) {
@@ -108,14 +123,22 @@ export default {
     background-color: #eee;
     max-width: 200px;
 }
-
 .weekly_show {
+    margin-top: 200px;
     margin-left: 60px;
 }
-
+.circle_wrapper {
+    border-radius: 50%;
+    background: linear-gradient(320deg, #3fc3da, #b7c9fc);
+    line-height: 90px;
+    width: 90px;
+    height: 90px;
+    padding:5px;
+    margin:10px;
+}
 .basic_content {
     font-size: 50px;
-    color: white;
+    color: black;
     display: inline;
     margin: 10px;
 }
@@ -145,7 +168,7 @@ button {
     border-radius: 10px;
 }
 
-.month_divide {
+/* .month_divide {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -170,7 +193,7 @@ button {
     border-radius: 10px;
     margin: 20px;
     float: left;
-}
+} */
 
 button:hover,
 .person:hover,
@@ -179,36 +202,43 @@ button:hover,
 .selected_content_person {
     opacity: 0.5;
 }
-
+.all_group_info {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    border: #b7c9fc solid 5px;
+    background-color: white;
+    width: 100%;
+}
 .member_show,
 .basic_info {
     overflow: hidden;
 }
-
 .load_person,
-.all_member {
+.circle_wrapper {
     display: inline-block;
 }
 
+.person, .content_person {
+    cursor: pointer;
+}
+.selected_content_person,
+.selected_person {
+    cursor: default;
+}
 .person,
 .selected_person,
 .content_person,
 .selected_content_person {
-    font-size: 20px;
-    color: #fff;
+    font-size: 30px;
+    color: black;
+    background-color: white;
     text-align: center;
-    line-height: 60px;
+    line-height: 80px;
     width: 80px;
-    height: 60px;
-    background: linear-gradient(320deg, #3fc3da, #b7c9fc);
-    cursor: pointer;
+    height: 80px;
+    border-radius: 50px;
 }
-
-.person,
-.selected_person {
-    margin: 10px;
-}
-
 textarea {
     padding: 10px;
     max-height: fit-content;
