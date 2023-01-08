@@ -1,13 +1,11 @@
 <template>
-    <div class="select">
+    <div class="select container">
         <table>
-            <tr>             
+            <tr>
                 <td>
                     <select v-model="selects.lab" class="select-lab">
                         <option disabled value="">研究室</option>
-                        <option v-for="(data, key) in lab_group"
-                            v-bind:value="data.lab"
-                            v-bind:key="key">
+                        <option v-for="(data, key) in lab_group" v-bind:value="data.lab" v-bind:key="key">
                             {{ data.lab }}
                         </option>
                     </select>
@@ -18,9 +16,7 @@
                 <td>
                     <select v-model="selects.group">
                         <option disabled value="">研究班</option>
-                        <option v-for="(group, key) in group_list" 
-                            v-bind:value="group"
-                            v-bind:key="key">
+                        <option v-for="(group, key) in group_list" v-bind:value="group" v-bind:key="key">
                             {{ group }}
                         </option>
                     </select>
@@ -35,16 +31,17 @@
 import axios from 'axios'
 
 export default {
+    props: ["year"],
     data() {
         return {
-            selects:{
-                lab:"",
-                group:""
+            selects: {
+                lab: "",
+                group: ""
             },
-            group_list:[],
-            lab_group:[],
-            res_data:{},
-            reference_folder:".",
+            group_list: [],
+            lab_group: [],
+            res_data: {},
+            reference_folder: ".",
         }
     },
     created() {
@@ -52,18 +49,18 @@ export default {
             this.lab_group = JSON.parse(JSON.stringify(result.data))
         })
     },
-    methods:{
-        get_group_list:function() {
-            for(let index = 0; index < this.lab_group.length; index++) {
+    methods: {
+        get_group_list() {
+            for (let index = 0; index < this.lab_group.length; index++) {
                 if (this.lab_group[index].lab === this.selects.lab) {
                     this.group_list = this.lab_group[index].group
                     break
                 }
             }
         },
-        decide:function() {
-            let url = `/summary/${this.$route.params.year}/${this.selects.lab}/${this.selects.group}`
-            this.$router.push({path:url})
+        decide() {
+            console.log(this.year)
+            this.$router.push({ name: 'weekly_summary_show', params: { year: this.year, lab: this.selects.lab, group: this.selects.group } })
         }
     }
 }
@@ -72,15 +69,17 @@ export default {
 
 <style>
 table {
-    margin:auto;
+    margin: auto;
 }
+
 td {
-    margin:10px;
-    padding:5px;
+    margin: 10px;
+    padding: 5px;
     font-size: 25px;
-    height:40px;
+    height: 40px;
     max-width: 400px;
 }
+
 input {
     width: 100px;
 }

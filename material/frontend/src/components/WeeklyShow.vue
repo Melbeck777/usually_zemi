@@ -1,11 +1,11 @@
 <template>
-    <div id="drop-down" class="container">
+    <div id="drop-down">
         <div class="basic_info">
-            <h1 class="basic_content">{{ group_info.group_name }}</h1>
-            <p class="count_meeting basic_content">ゼミ {{ meeting.length }}回</p>
+            <p class="basic_content">{{ group_info.group_name }}</p>
+            <p class="basic_content">合計{{ meeting.length }}回</p>
         </div>
-        <p :class="select_person(all_member_flag)" class="all_member" @click="select_all_member">all</p>
         <div class="member_show">
+            <p :class="select_person(all_member_flag)" class="all_member" @click="select_all_member">all</p>
             <div class="load_person" v-for="(person, person_key) in group_info.member" :key="person_key">
                 <p :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
             </div>
@@ -14,7 +14,7 @@
             <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
                 <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
                     :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key"
-                    @load_summary="fetch_data" @save_summary="fetch_data" />
+                    @load_summary="fetch_data"/>
             </div>
         </div>
     </div>
@@ -25,6 +25,7 @@ import axios from 'axios';
 import SummaryContentShow from './SummaryContentShow.vue';
 
 export default {
+    props:["year"],
     data() {
         return {
             group_info: {
@@ -44,13 +45,13 @@ export default {
         };
     },
     components: {
-        SummaryContentShow
+        SummaryContentShow,
     },
     created() {
         this.fetch_data()
     },
     methods: {
-        select: function (key) {
+        select(key) {
             this.member_select.splice(key, 1, !this.member_select[key])
             if (!this.member_select[key]) {
                 for (let index = 0; index < this.meeting.length; index++) {
@@ -58,7 +59,7 @@ export default {
                 }
             }
         },
-        select_all_member: function () {
+        select_all_member() {
             console.log(this.all_member_flag)
             this.all_member_flag = !this.all_member_flag
             for (let index = 0; index < this.member_select.length; index++) {
@@ -70,16 +71,16 @@ export default {
                 }
             }
         },
-        select_person: function (flag) {
+        select_person(flag) {
             return {
                 selected_person: flag,
                 person: !flag
             }
         },
-        month_show: function (month) {
-            this.$router.push({ path: `${this.$route.path}/${month}` })
+        to_monthly_show() {
+            this.$router.push({ name:'monthly_show', params:{year:this.year, lab:this.group_info.lab_name, group:this.group_info.group} })
         },
-        fetch_data: function () {
+        async fetch_data() {
             console.log("fetch_data")
             let url = this.$route.path
             axios.get(url).then((result) => {
@@ -112,9 +113,11 @@ export default {
     margin-left: 60px;
 }
 
-.count_meeting {
-    font-size: 25px;
+.basic_content {
+    font-size: 50px;
     color: white;
+    display: inline;
+    margin: 10px;
 }
 
 dt {
@@ -177,14 +180,12 @@ button:hover,
     opacity: 0.5;
 }
 
-.member_show {
+.member_show,
+.basic_info {
     overflow: hidden;
 }
 
-.load_person {
-    display: inline-block;
-}
-
+.load_person,
 .all_member {
     display: inline-block;
 }

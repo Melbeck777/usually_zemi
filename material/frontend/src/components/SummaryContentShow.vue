@@ -1,37 +1,40 @@
 <template>
-    <p class="summary_day" @click="select_summary">
-        {{ meeting.day }}
-    </p>
-
-    <div v-show="summary_open">
-        <p :class="!this.announcement_open ? 'announcement':'selected_announcement'" @click="select_announcement">
-            全体
+    <div class="container">
+        <p class="summary_day" @click="select_summary">
+            {{ meeting.day }}
         </p>
-        <div v-show="announcement_open">
-            <p class="content read-only">
-                {{ meeting.announcement }}
+    
+        <div v-show="summary_open">
+            <p :class="!this.announcement_open ? 'announcement':'selected_announcement'" @click="select_announcement">
+                全体
             </p>
-        </div>
-        <div v-for="(person, person_key) in member" :key="person_key">
-            <div v-show="member_select[person_key]">
-                <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
-                    {{ person }}
+            <div v-show="announcement_open">
+                <p class="content read-only">
+                    {{ meeting.announcement }}
                 </p>
-                <div v-show="personal_summary[person_key]">
-                    <p v-show="edit_flag[person_key] === false" class="content read-only">
-                        {{ meeting.content[person_key] }}
+            </div>
+            <div v-for="(person, person_key) in member" :key="person_key">
+                <div v-show="member_select[person_key]">
+                    <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
+                        {{ person }}
                     </p>
-                    <textarea class="content" v-show="edit_flag[person_key]" cols="100" rows="10" v-model="meeting.content[person_key]">
-                        {{ meeting.content[person_key] }}
-                    </textarea>
-                    <br/>
-                    <button v-show="!edit_flag[person_key]" @click="edit_summary(person_key)">Edit</button>
-                    <button v-show="edit_flag[person_key]" @click="edit_summary(person_key)">Read</button>
+                    <div v-show="personal_summary[person_key]">
+                        <p v-show="edit_flag[person_key] === false" class="content read-only">
+                            {{ meeting.content[person_key] }}
+                        </p>
+                        <textarea class="content" v-show="edit_flag[person_key]" cols="100" rows="10" v-model="meeting.content[person_key]">
+                            {{ meeting.content[person_key] }}
+                        </textarea>
+                        <br/>
+                        <button v-show="!edit_flag[person_key]" @click="edit_summary(person_key)">Edit</button>
+                        <button v-show="edit_flag[person_key]" @click="edit_summary(person_key)">Read</button>
+                    </div>
                 </div>
             </div>
+            <button @click="load_summary(meeting.day)">Load</button>
+            <button @click="load_summary(meeting.day)">Save</button>
         </div>
-        <button @click="load_summary(meeting.day)">Load</button>
-        <button @click="save_summary(meeting.day)">Save</button>
+
     </div>
 </template>
 
@@ -47,6 +50,11 @@ export default {
             summary_open:false,
             personal_summary:[],
             edit_flag:[],
+            date:{
+                year:0,
+                month:0,
+                day:0,
+            }
         }
     },
     created() {
@@ -55,10 +63,18 @@ export default {
             this.personal_summary.push(false)
         }
     },
+    mounted() {
+        console.log(this.meeting.day.length)
+        let num_list = this.meeting.day.split("/")
+        this.date.year = num_list[0]-0
+        this.date.month = num_list[1]-0
+        this.date.day = num_list[2]-0
+    },
     methods:{
         select_summary:function() {
             this.summary_open = !this.summary_open
             if(!this.summary_open) {
+                this.announcement_open = false
                 this.close_summary()
             }
         },
@@ -99,6 +115,8 @@ export default {
             if(confirm(confirm_text)) {
                 sep_date_flag = true
             }
+            console.log('meeting')
+            console.log(this.meeting)
             axios.post(this.$route.path, {
                 meeting:this.meeting,
                 day_index:this.day_index,
@@ -108,10 +126,6 @@ export default {
                 console.log(response.data)
             })
             this.$emit('load_summary')
-        },
-        save_summary:function(day) {
-            console.log("save "+day)
-            this.$emit('save_summary')
         },
         personal_status:function(key) {
             return  {

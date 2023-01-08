@@ -1,5 +1,5 @@
 <template>
-    <div class="summary_menu">
+    <div class="summary_menu container">
         <form>
             <div class="form-group year">
                 <p>年度</p>
@@ -25,7 +25,7 @@ export default {
     },
     methods:{
         go:function() {
-            this.$router.push({path:`/summary/${this.year}`})
+            this.$router.push({name:'select_group', params:{year:this.year}})
             // this.$router.push({path:`/summary/${this.year}`})
         }
     }
@@ -38,7 +38,6 @@ export default {
     color:black;
     font-size: 30px;
     text-align: center;
-    margin:10px;
 }
 input  {
     max-width: 100px;
