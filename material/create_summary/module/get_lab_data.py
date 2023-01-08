@@ -90,12 +90,13 @@ class get_lab_member:
             group_name  = self.member_data[columns[self.target_index[1]]][index]
             degree      = self.member_data[columns[self.target_index[2]]][index]
             person_name = self.member_data[columns[self.target_index[3]]][index]
-            if (type(group_name) is float) or (type(degree) is float) or (type(person_name) is float):
-                continue 
+
             if degree == self.teacher_label:
                 lab_member[lab_name][self.teacher_label].append(person_name)
             elif degree == self.b3_label:
                 lab_member[lab_name][self.b3_label].append([person_name, group_name])
+            elif (type(group_name) is float) or (type(degree) is float) or (type(person_name) is float):
+                continue
             else:
                 lab_member[lab_name][group_name][degree].append(person_name)
         return lab_member
@@ -159,6 +160,7 @@ class get_lab_data(get_lab_member):
     
     def get_professor(self):
         res = ""
+        print(self.all_lab_member[self.group_info[0]])
         for name in self.all_lab_member[self.group_info[0]][self.teacher_label]:
             res += name + "教授, "
         return res
@@ -205,6 +207,9 @@ class get_lab_data(get_lab_member):
             participants += self.get_B3()
         if participants[-2:] == ", ":
             participants = participants[:-2]
+        print("get_professor = {}".format(self.get_professor()))
+        print("get_B3 = {}".format(self.get_B3()))
+        print("participants = {}".format(participants))
         return participants
 
     '''

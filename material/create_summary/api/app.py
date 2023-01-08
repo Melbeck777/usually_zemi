@@ -41,19 +41,23 @@ def list_to_string(str_list):
     return res[:-1]
 
 def summary_to_dict(summary, presenter):
-    titles = presenter.keys()
+    names = list(presenter.keys())
+    titles = list(presenter[names[0]].keys())
     for index, name in enumerate(presenter):    
         title_name = ""
         summary[index] = summary[index].split("\n")
-        print(summary[index])
+        print(name)
         for line in summary[index]:
+            print(line,end=" ")
             if line in titles:
                 title_name = line
+                print("It's title")
                 continue
             if title_name == "":
+                print("None")
                 continue
-            print("{}, {}, {}".format(name,title_name, line))
-            presenter[name][title_name].append(line)
+            print("append")
+            presenter[name][title_name].append(line.replace("\t",""))
     return presenter
 
 @app.route('/',defaults={'path':''})
@@ -90,16 +94,15 @@ return {
         {
             day:year/month/day.
             content:list,
-            announcement:string
+            announcement:list   
         }
     ],
     titles:list
 }
 '''
 # test_url = /summary/2022/Test1/a
-@app.route('/summary/<int:year>/<lab_name>/<group_name>', methods=['GET'])
+@app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly', methods=['GET'])
 def get_summary_data(year, lab_name, group_name):
-    print("{}, {}, {}".format(year, lab_name, group_name))
     date = datetime.date(year, 4, 1)
     group_info = [lab_name, group_name]
     read_summary_object = read_summary(group_info, date, reference_folder=reference_folder)
@@ -128,17 +131,18 @@ def get_summary_data(year, lab_name, group_name):
     return jsonify(res_group_data)
 
 
-@app.route('/summary/<int:year>/<lab_name>/<group_name>', methods=['POST'])
+@app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly', methods=['POST'])
 def load_summary(year, lab_name, group_name):
-    print(request.get_json())
     post_data = request.get_json()
     day_index = post_data['day_index']
     meeting   = post_data['meeting']
     sep_date_flag = post_data['sep_date_flag']
-    print("day_index = {}".format(day_index))
     print("meeting = {}".format(meeting))
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
+    if type(announcement) is not list:
+        announcement = announcement.split("\n")
+    print("announcement = {}".format(announcement))
     if sep_date_flag:
         make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
     else:
@@ -146,10 +150,25 @@ def load_summary(year, lab_name, group_name):
         make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder, sep_date)
     presenter = make_summary_object.lab_data.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
-    print(edit_summary)
-    
+    print("edit_summary = {}".format(edit_summary))
     make_summary_object.create_one_day_summary_edited(day_index,edit_summary,announcement)
     return jsonify({})
+
+'''
+return {
+    member:list,
+    meeting_list:[
+        {
+            day:year/month/day.
+            content:list,
+            announcement:list   
+        }
+    ],
+}
+'''
+# @app.route('/summary/<int:year>/<lab_name>/<group_name>/monthly', methods=['GET'])
+# def get_month_show(year,lab_name, group_name, month): 
+
 
 if __name__ == "__main__":
     app.run( port=5000, use_debugger=True, use_reloader=True)

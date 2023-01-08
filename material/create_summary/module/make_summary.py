@@ -113,16 +113,12 @@ class make_summary:
         current_edit_name = self.edit_order[day_index%len(self.edit_order)]
         summary_file_name = self.read_summary.get_summary_file_name(current_edit_name)
         if day > self.sep_date:
-            print("current")
             member_data,counter = self.read_material.get_presenter_data()
         else:
-            print("old")
             member_data,counter = self.read_material.get_old_presenter_data()
-        print("{}, {}".format(counter, member_data))
         if counter == 0:
             return
         member_data = self.compare_summary(edit_summary, member_data)
-        print(member_data)
         current_summary_text = self.write_basic_info(announcement)
         current_summary_text = self.create_summary_text(current_summary_text,member_data)
         print('output file : ',summary_file_name)
