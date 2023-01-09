@@ -6,6 +6,7 @@
 - python 3.10.7
   - Flask
 - vue3.js
+- Node.js v16.17.0
 
 ## 作成物
 1. create_summary
