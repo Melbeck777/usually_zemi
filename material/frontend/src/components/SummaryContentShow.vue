@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div>
         <div class="summary_day_wrapper">
             <p class="summary_day" @click="select_summary">
                 {{ meeting.day }}

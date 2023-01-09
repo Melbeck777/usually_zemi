@@ -32,7 +32,7 @@ body {
     line-height: 1.5;
     font-size: 14px;
     margin-top: 110px;
-    height: 100vh;
+    /* height: 100vh; */
 }
 
 .container {
@@ -46,12 +46,14 @@ body {
         width: 700px;
         padding: 0;
         margin: 0 auto;
+        margin-bottom: 50px;
     }
 }
 
 @media (min-width: 1024px) {
     .container {
         width: 980px;
+        margin-bottom: 80px;
     }
 }
 </style>

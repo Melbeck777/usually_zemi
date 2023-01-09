@@ -116,7 +116,6 @@ export default {
 
 <style>
 .content_show {
-    position:relative;
     z-index: 0;
 }
 .summary_show {
@@ -128,8 +127,9 @@ export default {
     max-width: 200px;
 }
 .weekly_show {
-    margin-top: 200px;
+    margin-top: 150px;
     margin-left: 60px;
+    margin-bottom: 200px;
 }
 .circle_wrapper {
     border-radius: 50%;

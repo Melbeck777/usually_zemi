@@ -12,11 +12,11 @@ footer {
     margin-top: 160px;
     font-size: 20px;
     width: 100%;
+    bottom: 0;
 }
 @media (min-width: 768px) {
     footer {
         position: fixed;
-        bottom: 0;
         padding: 0;
         height: 50px;
         display: gird;
