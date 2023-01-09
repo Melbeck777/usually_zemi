@@ -43,6 +43,7 @@ def list_to_string(str_list):
 def summary_to_dict(summary, presenter):
     names = list(presenter.keys())
     titles = list(presenter[names[0]].keys())
+    print("summary ",summary)
     for index, name in enumerate(presenter):    
         title_name = ""
         summary[index] = summary[index].split("\n")
@@ -110,8 +111,7 @@ def get_summary_data(year, lab_name, group_name):
     member_list  = []
     meeting_list = []
     presenter = read_summary_object.lab_data.get_presenter()
-    for name in presenter:
-        member_list.append(name)
+    member_list = list(presenter.keys())
     res_group_data["member"] = member_list
     schedule = read_summary_object.lab_data.get_schedule(group_info)
     for index, day in enumerate(schedule):
@@ -131,18 +131,15 @@ def get_summary_data(year, lab_name, group_name):
     return jsonify(res_group_data)
 
 
-@app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly', methods=['POST'])
-def load_summary(year, lab_name, group_name):
+@app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly/<int:day_index>', methods=['POST'])
+def load_summary(year, lab_name, group_name, day_index):
     post_data = request.get_json()
-    day_index = post_data['day_index']
     meeting   = post_data['meeting']
     sep_date_flag = post_data['sep_date_flag']
-    print("meeting = {}".format(meeting))
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
     if type(announcement) is not list:
         announcement = announcement.split("\n")
-    print("announcement = {}".format(announcement))
     if sep_date_flag:
         make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
     else:
@@ -150,9 +147,34 @@ def load_summary(year, lab_name, group_name):
         make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder, sep_date)
     presenter = make_summary_object.lab_data.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
-    print("edit_summary = {}".format(edit_summary))
     make_summary_object.create_one_day_summary_edited(day_index,edit_summary,announcement)
     return jsonify({})
+
+'''
+return {
+    day:yyyy/mm/dd,
+    announcement:list
+    content:list,
+}
+'''
+@app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly/<int:meeting_key>' , methods=['GET'])
+def get_one_meeting(year, lab_name, group_name, meeting_key):
+    group_info = [lab_name, group_name]
+    date = datetime.datetime(year, 4, 1)
+    read_summary_object = read_summary(group_info, date, reference_folder=reference_folder)
+    schedule = read_summary_object.lab_data.get_schedule(group_info)
+    today = schedule[meeting_key]
+    res = {"day":show_date(today), "announcement":[""]}
+    presenter = read_summary_object.lab_data.get_presenter()
+    member_list = list(presenter.keys())
+    file_name = read_summary_object.get_summary_file_name(member_list[meeting_key%len(member_list)],today)
+    while os.path.exists(file_name) == False:
+        continue
+    content = read_summary_object.get_summary_contents(file_name, presenter)
+    res["content"] = split_content(content,presenter) 
+    announcement = read_summary_object.get_announcements(file_name,presenter)
+    res["announcement"] = list_to_string(announcement)
+    return jsonify(res)
 
 '''
 return {
