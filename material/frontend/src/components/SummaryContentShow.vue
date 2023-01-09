@@ -115,11 +115,9 @@ export default {
         edit_summary:function(key) {
             this.edit_flag.splice(key, 1, !this.edit_flag[key])
         },
-        load_summary:function() {
-            console.log("meeting")
-            console.log(this.meeting)
-            console.log("day_index")
-            console.log(this.day_index)
+        async load_summary() {
+            console.log("meeting ",this.meeting)
+            console.log("day_index ",this.day_index)
             let confirm_text = ""
             for(let index = 0; index < this.titles.length; index++) {
                 if (index != 0){
@@ -132,17 +130,19 @@ export default {
             if(confirm(confirm_text)) {
                 sep_date_flag = true
             }
-            console.log('meeting')
-            console.log(this.meeting)
-            axios.post(this.$route.path, {
-                meeting:this.meeting,
-                day_index:this.day_index,
-                sep_date_flag:sep_date_flag
-                
-            }).then(function(response) {
-                console.log(response.data)
+            try {
+                await axios.post(`${this.$route.path}/${this.day_index}`, {
+                    meeting:this.meeting,
+                    sep_date_flag:sep_date_flag
+                })
+            } catch (err) {
+                return
+            }
+
+            console.log("end load_summary")
+            this.$nextTick(function() {
+                this.$emit('load_summary', this.day_index)
             })
-            this.$emit('load_summary')
         },
         personal_status:function(key) {
             return  {

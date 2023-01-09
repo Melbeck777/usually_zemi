@@ -21,7 +21,7 @@
         <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
             <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
                 :member_select="this.member_select" :titles="this.titles" :day_index="meeting_key"
-                @load_summary="fetch_data"/>
+                @load_summary="update_meeting"/>
         </div>
     </div>
 
@@ -109,6 +109,14 @@ export default {
                     this.member_select.push(false)
                 }
             })
+        },
+        async update_meeting(meeting_key) {
+            let url = `${this.$route.path}/${meeting_key}`
+            console.log(url)
+            await axios.get(url).then(result => {
+                var obj = JSON.parse(JSON.stringify(result.data))
+                this.meeting.splice(meeting_key, 1, obj)
+            }).catch(error => console.log(error))
         }
     },
 }
