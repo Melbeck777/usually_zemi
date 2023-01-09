@@ -2,3 +2,5 @@ PyPDF2
 openpyxl
 numpy
 pandas
+flask
+flask_cors
