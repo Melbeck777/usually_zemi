@@ -95,7 +95,7 @@ export default {
         to_monthly_show() {
             this.$router.push({ name:'monthly_show', params:{year:this.year, lab:this.group_info.lab_name, group:this.group_info.group} })
         },
-        async fetch_data() {
+        fetch_data() {
             console.log("fetch_data")
             let url = this.$route.path
             axios.get(url).then((result) => {
@@ -115,6 +115,10 @@ export default {
 </script>
 
 <style>
+.content_show {
+    position:relative;
+    z-index: 0;
+}
 .summary_show {
     cursor: pointer;
     position: relative;
@@ -137,7 +141,7 @@ export default {
     margin:10px;
 }
 .basic_content {
-    font-size: 50px;
+    font-size: 30px;
     color: black;
     display: inline;
     margin: 10px;
@@ -197,9 +201,7 @@ button {
 
 button:hover,
 .person:hover,
-.selected_person,
-.content_person:hover,
-.selected_content_person {
+.selected_person {
     opacity: 0.5;
 }
 .all_group_info {
@@ -209,6 +211,7 @@ button:hover,
     border: #b7c9fc solid 5px;
     background-color: white;
     width: 100%;
+    z-index: 1;
 }
 .member_show,
 .basic_info {
@@ -219,17 +222,12 @@ button:hover,
     display: inline-block;
 }
 
-.person, .content_person {
+.person {
     cursor: pointer;
 }
-.selected_content_person,
-.selected_person {
-    cursor: default;
-}
+
 .person,
-.selected_person,
-.content_person,
-.selected_content_person {
+.selected_person {
     font-size: 30px;
     color: black;
     background-color: white;
@@ -238,6 +236,7 @@ button:hover,
     width: 80px;
     height: 80px;
     border-radius: 50px;
+    z-index: 0;
 }
 textarea {
     padding: 10px;

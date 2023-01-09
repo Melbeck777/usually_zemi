@@ -7,8 +7,8 @@
         </div>
         
         <div v-show="summary_open">
-            <div class="circle_wrapper" v-show="announcement_button_flag">
-                <p :class="!this.announcement_open ? 'content_person':'selected_content_person'" @click="select_announcement">
+            <div class="circle_wrapper content_info" v-show="announcement_button_flag">
+                <p :class="!this.announcement_open ? 'person':'selected_person'" @click="select_announcement">
                     全体
                 </p>
             </div>
@@ -19,7 +19,7 @@
             </div>
             <div v-for="(person, person_key) in member" :key="person_key">
                 <div v-show="member_select[person_key]">
-                    <div class="circle_wrapper">
+                    <div class="circle_wrapper content_info">
                         <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
                             {{ person }}
                         </p>
@@ -146,8 +146,8 @@ export default {
         },
         personal_status:function(key) {
             return  {
-                selected_content_person:this.personal_summary[key],
-                content_person:!this.personal_summary[key]
+                selected_person:this.personal_summary[key],
+                person:!this.personal_summary[key]
             }
         }
     },

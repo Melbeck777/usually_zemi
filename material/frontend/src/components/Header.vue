@@ -40,6 +40,7 @@ header {
     margin-left: 0;
     margin-right: 0;
     width: 100%;
+    z-index: 1;
 }
 .wrapper {
     overflow: hidden;
