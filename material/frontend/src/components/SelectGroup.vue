@@ -10,7 +10,6 @@
                         </option>
                     </select>
                 </td>
-                <td><button v-on:click="get_group_list">Reload</button></td>
             </tr>
             <tr>
                 <td>
@@ -29,6 +28,7 @@
 
 <script>
 import axios from 'axios'
+import { watch } from 'vue'
 
 export default {
     props: ["year"],
@@ -61,6 +61,17 @@ export default {
         decide() {
             console.log(this.year)
             this.$router.push({ name: 'weekly_summary_show', params: { year: this.year, lab: this.selects.lab, group: this.selects.group } })
+        }
+    },
+    watch: {
+        'selects.lab': function(new_val, old_val) {
+            console.log(old_val, new_val)
+            for (let index = 0; index < this.lab_group.length; index++) {
+                if (this.lab_group[index].lab === this.selects.lab) {
+                    this.group_list = this.lab_group[index].group
+                    break
+                }
+            }
         }
     }
 }

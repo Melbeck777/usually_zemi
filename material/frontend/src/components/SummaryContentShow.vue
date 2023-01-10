@@ -203,5 +203,6 @@ export default {
     background-color: white;
     padding: 10px;
     margin:auto;
+    overflow: auto;
 }
 </style>
