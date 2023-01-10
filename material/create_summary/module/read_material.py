@@ -25,7 +25,7 @@ class read_material:
         return res
 
     def get_bullet_marks(self):
-        bullet_marks_file = os.path.join(self.reference_folder, "bullet_marks.txt")
+        bullet_marks_file = "../bullet_marks.txt"
         with open(bullet_marks_file, "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
@@ -79,14 +79,16 @@ class read_material:
                 res[-1] += it
                 if res.count(res[-1]) > 1:
                     res.pop()
-                continue 
+                continue
+            if len(input_data) > 3:
+                res.append(input_data)
         return res
 
 
     # 書き出す項目を決めた後のデータの取得
     def get_contents_value(self, file_name,person_data):
         with open(file_name,'rb') as f:
-            reader = PdfFileReader(f)
+            reader = PdfFileReader(f, strict=False)
             page_numbers = reader.getNumPages()
             for index in range(page_numbers):
                 now_text = reader.getPage(index).extract_text().split('\n')
@@ -102,9 +104,10 @@ class read_material:
 
     # ルールを決める前のスライドからの情報の取得
     def get_old_contents_value(self, file_name):
+        print(file_name)
         current_contents = [[] for i in range(2)]
         with open(file_name,'rb') as f:
-            reader = PdfFileReader(f)
+            reader = PdfFileReader(f, strict=False)
             page_numbers = reader.getNumPages()
             indexes = [1,page_numbers-1]
             for index,i in enumerate(indexes):
@@ -145,9 +148,11 @@ class read_material:
         for name in self.presenter:
             presenter_data[name] = {'進捗報告':[''],'今後の予定':[''],'外部調査':['']}
         for name in presenter_data:
+            print(name)
             for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
                 each_data = self.get_old_contents_value(now_file)
+                print("each_data, ",each_data)
                 presenter_data[name]['進捗報告'] = each_data[0]
                 presenter_data[name]['今後の予定'] = each_data[1]
                 presenter_data[name]['外部調査'] = []
