@@ -132,7 +132,7 @@ class read_material:
         pdf_counter = 0
         today_folder = os.path.join(self.pdf_folder, self.lab_data.today_summary_folder())
         for name in presenter_data:
-            for now_file in Path(today_folder).glob('{}*.pdf'.format(name)):
+            for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
                 presenter_data[name] = self.get_contents_value(now_file,presenter_data[name])
         return presenter_data,pdf_counter
@@ -145,7 +145,7 @@ class read_material:
         for name in self.presenter:
             presenter_data[name] = {'進捗報告':[''],'今後の予定':[''],'外部調査':['']}
         for name in presenter_data:
-            for now_file in Path(today_folder).glob('{}*.pdf'.format(name)):
+            for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
                 each_data = self.get_old_contents_value(now_file)
                 presenter_data[name]['進捗報告'] = each_data[0]
