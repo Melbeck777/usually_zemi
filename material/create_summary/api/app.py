@@ -4,9 +4,10 @@ import datetime
 import sys
 import os
 sys.path.append("..")
-from module.get_lab_data import get_lab_member
-from module.read_summary import read_summary
-from module.make_summary import make_summary
+from module.get_lab_data import GetLabMember
+from module.get_lab_data import GetLabInfo
+from module.read_summary import ReadSummary
+from module.make_summary import MakeSummary
 
 index_folder = "../../frontend/dist"
 static_folder = "{}/_assets".format(index_folder)
@@ -21,17 +22,22 @@ def show_date(day):
 
 def split_content(content, presenter):
     res_content = []
+    print("content, ",content)
     for name in presenter:
-        current_txt = ""
+        current_list = []
         for title in content[name]:
             if len(content[name][title]) == 0:
+                current_list.append("")
                 continue
-            current_txt += "{}\n".format(title)
+            current_txt = ""
             for txt in content[name][title]:
-                if len(txt) == 0:
+                print("txt, ",txt)
+                if len(txt) == 0 or txt == "['']":
                     continue
-                current_txt += "\t{}\n".format(txt)
-        res_content.append(current_txt[:-1])
+                current_txt += "{}\n".format(txt)
+            current_list.append(current_txt[:-1])
+        print("current_list, ",current_list)
+        res_content.append(current_list)
     return res_content
 
 def list_to_string(str_list):
@@ -43,28 +49,50 @@ def list_to_string(str_list):
 def summary_to_dict(summary, presenter):
     names = list(presenter.keys())
     titles = list(presenter[names[0]].keys())
-    print("summary ",summary)
-    for index, name in enumerate(presenter):    
-        title_name = ""
-        summary[index] = summary[index].split("\n")
-        print(name)
-        for line in summary[index]:
-            print(line,end=" ")
-            if line in titles:
-                title_name = line
-                print("It's title")
+    for index, name in enumerate(presenter):
+        print("summary[index], ",summary[index])
+        for title_index, title_name in enumerate(titles):
+            if len(summary[index][title_index]) == 0:
                 continue
-            if title_name == "":
-                print("None")
-                continue
-            print("append")
-            presenter[name][title_name].append(line.replace("\t",""))
+            for content in summary[index][title_index].split("\n"):
+                presenter[name][title_name].append(content)
+            print("summary[index][title_index], ",summary[index][title_index])
     return presenter
 
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
 def index(path):
     return render_template("index.html")
+
+
+'''
+return {
+    [
+        {
+            year:int,
+            lab_group:[
+                {
+                    group_name:str,
+                    lab_name_list:list
+                }
+            ]
+        }
+    ]
+}
+'''
+@app.route('/summary/menu', methods=["GET"])
+def get_summary_menu():
+    LabInfo = GetLabInfo(reference_folder)
+    years = LabInfo.get_year()
+    res = []
+    for year in years:
+        LabMember = GetLabMember(year, reference_folder)
+        lab_group_pair_list = LabMember.create_lab_group_pair()
+        current_list = []
+        for lab_name in lab_group_pair_list:
+            current_list.append({"lab":lab_name, "group":lab_group_pair_list[lab_name]})
+        res.append({"year":year, "lab_group":current_list})
+    return jsonify(res)
 
 '''
 return {
@@ -77,10 +105,9 @@ return {
 # test_url = /summary/2022
 @app.route('/summary/<int:year>', methods=['GET'])
 def get_lab_group(year):
-    date = datetime.date(year,4,1)
     res_lab_group_list = []
-    lab_member = get_lab_member(date, reference_folder)
-    lab_data = lab_member.create_lab_group_pair()
+    LabMember = GetLabMember(year, reference_folder)
+    lab_data = LabMember.create_lab_group_pair()
     for lab_name in lab_data:
         res_lab_group_list.append({"lab":lab_name,"group":lab_data[lab_name]})
     return jsonify(res_lab_group_list)
@@ -94,8 +121,9 @@ return {
     meeting:[
         {
             day:year/month/day.
-            content:list,
-            announcement:list   
+            content:list[list],
+            announcement:list,
+            recorder:str,
         }
     ],
     titles:list
@@ -106,25 +134,26 @@ return {
 def get_summary_data(year, lab_name, group_name):
     date = datetime.date(year, 4, 1)
     group_info = [lab_name, group_name]
-    read_summary_object = read_summary(group_info, date, reference_folder=reference_folder)
+    RS = ReadSummary(group_info, date, reference_folder=reference_folder)
     res_group_data = {"lab_name":lab_name, "group_name":group_name}
     member_list  = []
     meeting_list = []
-    presenter = read_summary_object.lab_data.get_presenter()
+    presenter = RS.LabData.get_presenter()
     member_list = list(presenter.keys())
     res_group_data["member"] = member_list
-    schedule = read_summary_object.lab_data.get_schedule(group_info)
+    schedule = RS.LabData.get_schedule(group_info)
     for index, day in enumerate(schedule):
-        current_presenter = read_summary_object.lab_data.get_presenter()
-        current_dict = {"day":show_date(day),"content":[],"announcement":[]}
-        today_summary_file_name = read_summary_object.get_summary_file_name(member_list[index%len(member_list)],day)
+        current_presenter = RS.LabData.get_presenter()
+        current_dict = {"day":show_date(day),"content":[],"announcement":[], "recorder":"", "absence":""}
+        today_summary_file_name = RS.get_summary_file_name(member_list[index%len(member_list)],day)
         if os.path.exists(today_summary_file_name) == False:
-            current_dict["content"] = ["" for i in range(len(current_presenter))]
+            current_dict["content"] = [["" for i in range(len(current_presenter[member_list[0]]))]for i in range(len(current_presenter))]
         else:
-            content = read_summary_object.get_summary_contents(today_summary_file_name, current_presenter)
+            content = RS.get_summary_contents(today_summary_file_name, current_presenter)
             current_dict["content"] = split_content(content,current_presenter) 
-            announcement = read_summary_object.get_announcements(today_summary_file_name,current_presenter)
+            announcement = RS.get_announcements(today_summary_file_name,current_presenter)
             current_dict["announcement"] = list_to_string(announcement)
+            current_dict["recorder"], current_dict["absence"] = RS.get_recorder_absence(today_summary_file_name)
         meeting_list.append(current_dict)
     res_group_data["meeting"] = meeting_list
     res_group_data["titles"] = list(presenter[member_list[0]].keys())
@@ -138,42 +167,47 @@ def load_summary(year, lab_name, group_name, day_index):
     sep_date_flag = post_data['sep_date_flag']
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
+    print(meeting)
+    recorder = meeting['recorder']
+    absence = meeting['absence']
     if type(announcement) is not list:
         announcement = announcement.split("\n")
     if sep_date_flag:
-        make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder)
+        MS = MakeSummary([lab_name, group_name], day_index, reference_folder)
     else:
         sep_date = TODAY + datetime.timedelta(weeks=1)
-        make_summary_object = make_summary([lab_name, group_name], day_index, reference_folder, sep_date)
-    presenter = make_summary_object.lab_data.get_presenter()
+        MS = MakeSummary([lab_name, group_name], day_index, reference_folder, sep_date)
+    presenter = MS.LabData.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
-    make_summary_object.create_one_day_summary_edited(day_index,edit_summary,announcement)
+    MS.create_one_day_summary_edited(day_index,edit_summary,announcement,absence,recorder)
     return jsonify({})
 
 '''
 return {
     day:yyyy/mm/dd,
     announcement:list
-    content:list,
+    content:list[list],
+    recorder:str
 }
 '''
 @app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly/<int:meeting_key>' , methods=['GET'])
 def get_one_meeting(year, lab_name, group_name, meeting_key):
     group_info = [lab_name, group_name]
     date = datetime.datetime(year, 4, 1)
-    read_summary_object = read_summary(group_info, date, reference_folder=reference_folder)
-    schedule = read_summary_object.lab_data.get_schedule(group_info)
+    RS = ReadSummary(group_info, date, reference_folder=reference_folder)
+    schedule = RS.LabData.get_schedule(group_info)
     today = schedule[meeting_key]
     res = {"day":show_date(today), "announcement":[""]}
-    presenter = read_summary_object.lab_data.get_presenter()
+    presenter = RS.LabData.get_presenter()
     member_list = list(presenter.keys())
-    file_name = read_summary_object.get_summary_file_name(member_list[meeting_key%len(member_list)],today)
+    file_name = RS.get_summary_file_name(member_list[meeting_key%len(member_list)],today)
     while os.path.exists(file_name) == False:
         continue
-    content = read_summary_object.get_summary_contents(file_name, presenter)
+    content = RS.get_summary_contents(file_name, presenter)
     res["content"] = split_content(content,presenter) 
-    announcement = read_summary_object.get_announcements(file_name,presenter)
+    announcement = RS.get_announcements(file_name,presenter)
     res["announcement"] = list_to_string(announcement)
+    res["recorder"], res["absence"] = RS.get_recorder_absence(file_name)
     return jsonify(res)
 
 '''
