@@ -4,10 +4,15 @@
             <h1 class="basic_content">{{ group_info.group_name }}</h1>
             <p class="count_meeting basic_content">ゼミ {{ meeting.length }}回</p>
         </div>
-        <p :class="select_person(all_member_flag)" class="all_member" @click="select_all_member">all</p>
+        <p :class="person_status(all_member_flag)" class="all_member" @click="select_all_member">all</p>
         <div class="member_show">
             <div class="load_person" v-for="(person, person_key) in group_info.member" :key="person_key">
-                <p :class="select_person(member_select[person_key])" @click="select(person_key)">{{ person }}</p>
+                <p :class="person_status(member_select[person_key])" @click="select_member(person_key)">{{ person }}</p>
+            </div>
+        </div>
+        <div class="title_show">
+            <div class="load_title" v-for="(title, title_key) in titles" :key="title_key">
+                <p :class="select_title(title_select[title_key])" @click="select_title(title_key)">{{ title }}</p>
             </div>
         </div>
         <div class="weekly_show">
@@ -40,7 +45,8 @@ export default {
             summary_open_list: [],
             personal_summary: [],
             edit_flag: [],
-            member_select: []
+            member_select: [],
+            title_select: []
         };
     },
     components: {
@@ -50,11 +56,19 @@ export default {
         this.fetch_data()
     },
     methods: {
-        select: function (key) {
+        select_member: function (key) {
             this.member_select.splice(key, 1, !this.member_select[key])
             if (!this.member_select[key]) {
                 for (let index = 0; index < this.meeting.length; index++) {
                     this.$refs.content_show[index].close_personal_summary(key)
+                }
+            }
+        },
+        select_title: function (key) {
+            this.title_select.splice(key, 1, !this.title_select[key])
+            if (!this.title_select[key]) {
+                for (let index = 0; index < this.meeting.length; index++) {
+                    this.$refs.content_show[index].close_title(key)
                 }
             }
         },
@@ -70,7 +84,7 @@ export default {
                 }
             }
         },
-        select_person: function (flag) {
+        person_status: function (flag) {
             return {
                 selected_person: flag,
                 person: !flag
@@ -80,7 +94,7 @@ export default {
             this.$router.push({ path: `${this.$route.path}/${month}` })
         },
         fetch_data: function () {
-            console.log("fetch_data")
+            console.log("start fetch_data")
             let url = this.$route.path
             axios.get(url).then((result) => {
                 var obj = JSON.parse(JSON.stringify(result.data))
@@ -92,7 +106,11 @@ export default {
                 for (let index = 0; index < obj.member.length; index++) {
                     this.member_select.push(false)
                 }
+                for (let index = 0; index < obj.titles.length; index++) {
+                    this.title_select.push(false)
+                }
             })
+            console.log("end fetch data")
         }
     },
 }
