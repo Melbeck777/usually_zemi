@@ -5,13 +5,29 @@ from pathlib import Path
 
 # dayの初期値
 TODAY = datetime.datetime.today()
+TERM = 0
+if TODAY.month < 4:
+    TERM = 1
 
-class get_lab_member:
-    def __init__(self,day=TODAY, reference_folder="."):
+class GetLabInfo:
+    def __init__(self, reference_folder):
         self.reference_folder = reference_folder
-        self.day = day
-        self.term = self.get_term()
-        self.member_data_file = os.path.join(reference_folder,"member", "{}_member.xlsx".format(str(self.day.year-self.term)))
+        self.member_folder = os.path.join(self.reference_folder, "member")
+        
+    def get_year(self):
+        res = []
+        for file in Path(self.member_folder).glob("*.xlsx"):
+            year = file.split("_")[0]
+            if year in res:
+                continue
+            year.append(year)
+        return res
+
+class GetLabMember:
+    def __init__(self, year=TODAY.year-TERM, reference_folder="."):
+        self.reference_folder = reference_folder
+        self.year = year
+        self.member_data_file = os.path.join(reference_folder,"member", "{}_member.xlsx".format(str(self.year)))
         self.member_data = pd.read_excel(self.member_data_file)
         
         # 研究室，研究班，学年，氏
@@ -28,12 +44,6 @@ class get_lab_member:
         
         # 二回目のゼミ以降
         self.sep_date = datetime.datetime(2022,10,13)
-    
-
-    def get_term(self):
-        if self.day.month < 4:
-            return 1
-        return 0
 
     # 複数の研究室と協働でメンバーの情報を共有しているため、研究室名の取得
     def get_lab_names(self):
@@ -128,7 +138,7 @@ class get_lab_member:
         return title_names
 
     def get_schedule(self, group_info):
-        schedule_path = os.path.join(self.reference_folder,"schedule", group_info[0],"{}_schedule.csv".format(self.day.year-self.term))
+        schedule_path = os.path.join(self.reference_folder,"schedule", group_info[0],"{}_schedule.csv".format(self.year))
         schedule = pd.read_csv(schedule_path, encoding="utf-8")
         group_schedule = []
         for index, element in enumerate(schedule["day"]):
@@ -136,14 +146,22 @@ class get_lab_member:
             group_schedule.append(current_day)
         return group_schedule
 
-class get_lab_data(get_lab_member):
+class GetLabData(GetLabMember):
     def __init__(self, group_info, day, reference_folder='.'):
         self.group_info = group_info
         self.day = day
+        self.term = self.get_term()
         self.pdf_folder = os.path.join(reference_folder, "pdf", group_info[0], group_info[1])
         self.out_folder = os.path.join(reference_folder, "out", group_info[0], group_info[1])
-        super().__init__(day,reference_folder)
-
+        super().__init__(day.year-self.term,reference_folder)
+    
+    def get_term(self,day=None):
+        if day is None:
+            day = self.day
+        if day.month < 4:
+            return 1
+        return 0
+    
     # 発表者の情報を取得する
     def get_presenter(self):
         presenter = {}

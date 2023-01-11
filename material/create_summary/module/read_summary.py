@@ -2,18 +2,18 @@ import os
 import datetime
 from pathlib import Path
 import shutil
-from .get_lab_data import get_lab_data
+from .get_lab_data import GetLabData
 
-class read_summary:
+class ReadSummary:
     def __init__(self, group_info, day, reference_folder=".", zemi_folder="."):
         self.group_info = group_info
         self.day = day
         self.reference_folder = reference_folder
         self.zemi_folder = zemi_folder
         self.template = self.get_template()
-        self.lab_data = get_lab_data(group_info,day,reference_folder)
-        self.out_folder = self.lab_data.out_folder
-        self.pdf_folder = self.lab_data.pdf_folder
+        self.LabData = GetLabData(group_info,day,reference_folder)
+        self.out_folder = self.LabData.out_folder
+        self.pdf_folder = self.LabData.pdf_folder
 
 
     # 議事録のテンプレートを取得
@@ -22,7 +22,7 @@ class read_summary:
         template_summary = []
         with open(template_path, 'r', encoding='utf-8') as f:
             file_text = f.read().split('\n')
-            base_sets = [[0,1],[1,2], [6,len(file_text)]]
+            base_sets = [[0,1],[1,2], [7,len(file_text)]]
             for i in range(len(base_sets)):
                 for j in range(base_sets[i][0],base_sets[i][1]):
                     template_summary.append('{}\n'.format(file_text[j]))
@@ -44,13 +44,13 @@ class read_summary:
         if day == None:
             day = self.day
         return '{}_{:0>2}_{:0>2}_{}_{}.txt'.format(str(day.year),str(day.month),str(day.day),person_name,self.group_info[1])
-
+    
     def get_summary_file_name(self, person_name, day=None):
         if day == None:
             day = self.day
         file_names = [self.today_summary_file(day), self.add_editor_name(person_name,day)]
         folder_names = [self.out_folder, self.pdf_folder]
-        day_folder = self.lab_data.today_summary_folder(day)
+        day_folder = self.LabData.today_summary_folder(day)
         for folder_name in folder_names:
             current_folder = os.path.join(folder_name, day_folder)
             for file_name in file_names:
@@ -61,6 +61,20 @@ class read_summary:
         if os.path.exists(summary_folder) != True:
             os.makedirs(summary_folder)
         return os.path.join(summary_folder,file_names[0])
+
+    def get_recorder_absence(self, file_name):
+        with open(file_name, 'r', encoding='utf-8') as f:
+            lines = f.read().split("\n")
+            recorder_index = 4 # 議事録作成者
+            absence_index = 6 # 欠席者
+            recorder = lines[recorder_index].split(":")[1].replace(" ", "")
+            absence = lines[absence_index].split(":")
+            if len(absence) > 1:
+                absence = absence[1].replace(" ","")
+            else:
+                absence = ""
+            return recorder,absence
+
 
     # 作成した議事録から全体への連絡事項を取得する
     def get_announcements(self, file_name, names):
@@ -79,7 +93,7 @@ class read_summary:
 
     # outからpdfに議事録のファイルを移動する
     def move_pre_summary(self, out_folder, pdf_folder, file_name):
-        summary_folder = self.lab_data.today_summary_folder()
+        summary_folder = self.LabData.today_summary_folder()
         from_path = os.path.join(out_folder,file_name)
         to_path = os.path.join(pdf_folder,summary_folder,file_name)
         if os.path.exists(to_path):

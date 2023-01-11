@@ -3,19 +3,19 @@ import datetime
 from pathlib import Path
 from PyPDF2 import PdfFileReader
 import re
-from .get_lab_data import get_lab_data
+from .get_lab_data import GetLabData
 
-class read_material:
+class ReadMaterial:
     def __init__(self, group_info, day, edit_name, reference_folder="."):
         self.group_info = group_info
         self.day        = day
         self.edit_name  = edit_name
         self.reference_folder = reference_folder
-        self.lab_data   = get_lab_data(group_info,day,reference_folder)
-        self.presenter  = self.lab_data.get_presenter()
+        self.LabData    = GetLabData(group_info,day,reference_folder)
+        self.presenter  = self.LabData.get_presenter()
         self.ignores    = self.get_ignores()
-        self.pdf_folder = self.lab_data.pdf_folder
-        self.out_folder = self.lab_data.out_folder
+        self.pdf_folder = self.LabData.pdf_folder
+        self.out_folder = self.LabData.out_folder
         self.bullet_marks = self.get_bullet_marks()
     
     def get_ignores(self):
@@ -132,7 +132,7 @@ class read_material:
     def get_presenter_data(self):
         presenter_data = self.presenter
         pdf_counter = 0
-        today_folder = os.path.join(self.pdf_folder, self.lab_data.today_summary_folder())
+        today_folder = os.path.join(self.pdf_folder, self.LabData.today_summary_folder())
         for name in presenter_data:
             for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
@@ -143,14 +143,14 @@ class read_material:
     def get_old_presenter_data(self):
         presenter_data = {}
         pdf_counter = 0
-        today_folder = os.path.join(self.pdf_folder, self.lab_data.today_summary_folder())
+        today_folder = os.path.join(self.pdf_folder, self.LabData.today_summary_folder())
         for name in self.presenter:
-            presenter_data[name] = {'進捗報告':[''],'今後の予定':[''],'外部調査':['']}
+            presenter_data[name] = {'進捗':[''],'今後の予定':[''],'参考文献':['']}
         for name in presenter_data:
             for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
                 each_data = self.get_old_contents_value(now_file)
-                presenter_data[name]['進捗報告'] = each_data[0]
+                presenter_data[name]['進捗'] = each_data[0]
                 presenter_data[name]['今後の予定'] = each_data[1]
-                presenter_data[name]['外部調査'] = []
+                presenter_data[name]['参考文献'] = []
         return presenter_data,pdf_counter
