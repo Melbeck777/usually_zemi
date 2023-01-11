@@ -115,7 +115,7 @@ class get_lab_member:
     
     # 記載する項目の取得
     def get_title_names(self):
-        path = os.path.join(self.reference_folder,"READMe.md")
+        path = os.path.join("..","READMe.md")
         title_names = []
         target = '<!-- title -!>'
         with open(path, 'r', encoding='utf-8') as f:
