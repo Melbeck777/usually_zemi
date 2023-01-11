@@ -104,7 +104,6 @@ class read_material:
 
     # ルールを決める前のスライドからの情報の取得
     def get_old_contents_value(self, file_name):
-        print(file_name)
         current_contents = [[] for i in range(2)]
         with open(file_name,'rb') as f:
             reader = PdfFileReader(f, strict=False)
@@ -148,11 +147,9 @@ class read_material:
         for name in self.presenter:
             presenter_data[name] = {'進捗報告':[''],'今後の予定':[''],'外部調査':['']}
         for name in presenter_data:
-            print(name)
             for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
                 each_data = self.get_old_contents_value(now_file)
-                print("each_data, ",each_data)
                 presenter_data[name]['進捗報告'] = each_data[0]
                 presenter_data[name]['今後の予定'] = each_data[1]
                 presenter_data[name]['外部調査'] = []

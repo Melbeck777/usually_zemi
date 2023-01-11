@@ -178,7 +178,7 @@ Press CTRL+C to quit
 
 ## Rule
 - 作成資料に必要な項目
-  - 進捗報告 <!-- title -!>
+  - 進捗 <!-- title -!>
   - 今後の予定 <!-- title -!>
   - 参考文献 <!-- title -!>
     - 論文
