@@ -7,7 +7,7 @@
         </div>
         
         <div v-show="summary_open">
-            <div>
+            <div class="info_wrapper">
                 <label class="record">議事録記録者</label>
                 <p class="record-content">
                     {{ meeting.recorder }}
@@ -18,7 +18,7 @@
                 <button v-show="!recorder_edit_flag" @click="edit_recorder()">Edit</button>
                 <button v-show="recorder_edit_flag"  @click="edit_recorder()">Read</button>    
             </div>
-            <div>
+            <div class="info_wrapper">
                 <label class="record">欠席者</label>
                 <p class="record-content" v-show="absence_edit_flag == false">
                     {{ meeting.absence }}
@@ -30,7 +30,7 @@
                 <button v-show="absence_edit_flag"  @click="edit_absence()">Read</button>    
             </div>
             <div class="circle_wrapper content_info" v-show="announcement_button_flag">
-                <p :class="!this.announcement_open ? 'person':'selected_person'" @click="select_announcement">
+                <p v-show="announcement_button_flag" :class="!announcement_open ? 'person':'selected_person'" @click="select_announcement">
                     全体
                 </p>
             </div>
@@ -52,7 +52,7 @@
                         </p>
                     </div>
                     <br/>
-                    <div v-for="(title, title_key) in titles" :key="title_key" class="content_box">
+                    <div v-show="personal_summary[person_key]" v-for="(title, title_key) in titles" :key="title_key" class="content_box">
                         <div v-show="title_select[title_key]">
                             <p :class="title_status(title_key)" @click="select_personal_content(person_key, title_key)">
                                 {{ title }}
@@ -162,6 +162,9 @@ export default {
         change_announcement_button() {
             this.announcement_button_flag = !this.announcement_button_flag
             console.log(this.announcement_button_flag)
+            if (!this.announcement_button_flag) {
+                this.announcement_open = false
+            }
         },
         edit_announcement() {
             this.announcement_edit_flag = !this.announcement_edit_flag
@@ -183,6 +186,12 @@ export default {
         },
         select_personal_summary:function(key) {
             this.personal_summary.splice(key, 1, !this.personal_summary[key])
+            if (!this.personal_summary[key]) {
+                for(let index = 0; index < this.titles.length; index++) {
+                    this.personal_content[key].splice(index, 1, false)
+                    this.edit_flag[key].splice(index, 1, false)
+                }
+            }
         },
         select_personal_content:function(person_key, title_key) {
             this.personal_content[person_key].splice(title_key, 1, !this.personal_content[person_key][title_key])
@@ -190,12 +199,14 @@ export default {
         close_personal_summary:function(key) {
             for(let index = 0; index < this.titles.length; index++) {
                 this.edit_flag[key].splice(index, 1, false)
+                this.personal_content[key].splice(index, 1, false)
             }
             this.personal_summary.splice(key, 1, false)
         },
         close_title:function(key) {
             for(let index = 0; index < this.member.length; index++) {
                 this.edit_flag[index].splice(key, 1, false)
+                this.personal_content[index].splice(key, 1, false)
             }
             this.title_select.splice(key, 1, false)
         },
@@ -259,12 +270,15 @@ export default {
     border-image-slice: 1;
 }
 .content_box {
-    width: 400px;
+    width: 500px;
     max-height: 300px;
     margin: 10px;
     display: inline-block;
 }
-
+.info_wrapper {
+    height: 60px;
+    line-height: 40px;
+}
 .announcement, .selected_announcement {
     font-size: 30px;
     color: black;
@@ -296,12 +310,13 @@ export default {
 .record-content {
     text-align: left;
     border: black solid 0.1em;
+    margin-bottom: 0px;
 }
 .content {
     font-size:20px;
     white-space: pre-wrap;
     text-align: left;
-    width: 400px;
+    width: 500px;
     height: 100px;
     margin: 10px;
     border: black solid 0.1em;

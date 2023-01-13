@@ -52,7 +52,7 @@ body {
 
 @media (min-width: 1024px) {
     .container {
-        width: 980px;
+        width: 1100px;
         margin-bottom: 80px;
     }
 }

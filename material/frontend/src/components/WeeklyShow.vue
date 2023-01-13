@@ -268,7 +268,7 @@ button:hover,
 
 .person,
 .selected_person {
-    font-size: 30px;
+    font-size: 25px;
     color: black;
     background-color: white;
     text-align: center;
