@@ -33,17 +33,15 @@ class MakeSummary:
         self.ignores  = self.ReadMaterial.get_ignores()
     
     # 基本情報の記述
-    def write_basic_info(self,announcements=[],recorder=None, absence=None):
+    def write_basic_info(self,announcements=[],recorder="", absence=""):
         current_template = self.template
         current_template[0] = current_template[0].replace('group_name', self.group_info[1])
         current_template[1] = current_template[1].replace('year',str(self.day.year)).replace('month',str(self.day.month)).replace('day',str(self.day.day))
         current_template[2] += "{}曜日\n".format(self.week_days[self.day.weekday()])
         current_template[3] += "{}:{:0>2}\n".format(self.day.hour,self.day.minute)
         participant = self.LabData.get_participant()
-        if recorder == None:
+        if recorder == "":
             recorder = self.edit_name
-        if absence == None:
-            absence = ""
         else:
             participant = participant.replace(absence, "").replace(", ,",", ")
         current_template[4] += "{}\n".format(recorder)

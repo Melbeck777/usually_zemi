@@ -22,7 +22,6 @@ def show_date(day):
 
 def split_content(content, presenter):
     res_content = []
-    print("content, ",content)
     for name in presenter:
         current_list = []
         for title in content[name]:
@@ -31,12 +30,10 @@ def split_content(content, presenter):
                 continue
             current_txt = ""
             for txt in content[name][title]:
-                print("txt, ",txt)
                 if len(txt) == 0 or txt == "['']":
                     continue
                 current_txt += "{}\n".format(txt)
             current_list.append(current_txt[:-1])
-        print("current_list, ",current_list)
         res_content.append(current_list)
     return res_content
 
@@ -50,13 +47,11 @@ def summary_to_dict(summary, presenter):
     names = list(presenter.keys())
     titles = list(presenter[names[0]].keys())
     for index, name in enumerate(presenter):
-        print("summary[index], ",summary[index])
         for title_index, title_name in enumerate(titles):
             if len(summary[index][title_index]) == 0:
                 continue
             for content in summary[index][title_index].split("\n"):
                 presenter[name][title_name].append(content)
-            print("summary[index][title_index], ",summary[index][title_index])
     return presenter
 
 @app.route('/',defaults={'path':''})
@@ -167,7 +162,7 @@ def load_summary(year, lab_name, group_name, day_index):
     sep_date_flag = post_data['sep_date_flag']
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
-    print(meeting)
+    print("meeting, ",meeting)
     recorder = meeting['recorder']
     absence = meeting['absence']
     if type(announcement) is not list:
