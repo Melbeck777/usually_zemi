@@ -9,10 +9,10 @@
         <div v-show="summary_open">
             <div class="info_wrapper">
                 <label class="record">議事録記録者</label>
-                <p class="record-content">
+                <p v-show="!recorder_edit_flag" class="record-content">
                     {{ meeting.recorder }}
                 </p>
-                <textarea class="content" v-show="recorder_edit_flag" cols="10" rows="1" v-model="meeting.recorder">
+                <textarea class="edit_single_line" v-show="recorder_edit_flag" cols="10" rows="1" v-model="meeting.recorder">
                     {{ meeting.recorder }}
                 </textarea>
                 <button v-show="!recorder_edit_flag" @click="edit_recorder()">Edit</button>
@@ -23,7 +23,7 @@
                 <p class="record-content" v-show="absence_edit_flag == false">
                     {{ meeting.absence }}
                 </p>
-                <textarea class="content" v-show="absence_edit_flag" cols="10" rows="1" v-model="meeting.absence">
+                <textarea class="edit_single_line" v-show="absence_edit_flag" cols="10" rows="1" v-model="meeting.absence">
                     {{ meeting.absence }}
                 </textarea>
                 <button v-show="!absence_edit_flag" @click="edit_absence()">Edit</button>
@@ -311,6 +311,16 @@ export default {
     text-align: left;
     border: black solid 0.1em;
     margin-bottom: 0px;
+}
+.edit_single_line {
+    text-align: left;
+    line-height: 20px;
+    font-size: 20px;
+    background-color: #fff;
+    padding: 10px;
+    margin: auto;
+    height: 40px;
+    width: 200px;
 }
 .content {
     font-size:20px;

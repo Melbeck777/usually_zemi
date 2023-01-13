@@ -163,7 +163,7 @@ export default {
     max-width: 200px;
 }
 .weekly_show {
-    margin-top: 200px;
+    margin-top: 250px;
     margin-left: 60px;
     margin-bottom: 200px;
 }
