@@ -121,6 +121,7 @@ export default {
         fetch_data() {
             console.log("start fetch data")
             let url = this.$route.path
+            console.log('url, ',url)
             axios.get(url).then((result) => {
                 var obj = JSON.parse(JSON.stringify(result.data))
                 this.group_info.lab_name = obj.lab_name
@@ -128,6 +129,9 @@ export default {
                 this.group_info.member = obj.member
                 this.meeting = obj.meeting
                 this.titles = obj.titles
+                console.log("obj, ",obj)
+                console.log("obj.member.length, ",obj.member.length)
+                console.log("obj.titles.length, ",obj.titles.length)
                 for (let index = 0; index < obj.member.length; index++) {
                     this.member_select.push(false)
                 }
@@ -207,34 +211,6 @@ button {
     border: whitesmoke;
     border-radius: 10px;
 }
-
-/* .month_divide {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -ms-flex-pack: distribute;
-    justify-content: space-around;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-}
-
-.month {
-    background: linear-gradient(320deg, #3f7dda, #b7d7fc);
-    color: white;
-    font-size: 50px;
-    text-align: center;
-    border: whitesmoke;
-    line-height: 140px;
-    width: 140px;
-    height: 140px;
-    border-radius: 10px;
-    margin: 20px;
-    float: left;
-} */
-
 button:hover,
 .person:hover,
 .selected_person,
@@ -293,7 +269,7 @@ button:hover,
     background-color: white;
     /* border-color: linear-gradient(320deg, #3fc3da, #b7c9fc); */
     border: 10px solid;
-    border-image-source: linear-gradient(320deg, #ca8585, #9785ca);
+    border-image-source: linear-gradient(320deg, #b5ca85, #85ca87);
     border-image-slice: 1;
 }
 textarea {

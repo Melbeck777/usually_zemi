@@ -13,15 +13,9 @@ const routes = [
         component:Top
     },
     {
-        path:'/summary/menu',
+        path:'/summary',
         name:'summary_menu',
-        component:SummaryMenu
-    },
-    {
-        path:'/summary/:year',
-        name:'select_group',
-        component:SelectGroup,
-        props:true,
+        component:SelectGroup
     },
     {
         path:'/summary/:year/:lab/:group',
