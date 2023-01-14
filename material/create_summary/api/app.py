@@ -75,7 +75,7 @@ return {
     ]
 }
 '''
-@app.route('/summary/menu', methods=["GET"])
+@app.route('/summary', methods=["GET"])
 def get_summary_menu():
     LabInfo = GetLabInfo(reference_folder)
     years = LabInfo.get_year()

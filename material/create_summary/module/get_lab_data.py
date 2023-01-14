@@ -17,10 +17,12 @@ class GetLabInfo:
     def get_year(self):
         res = []
         for file in Path(self.member_folder).glob("*.xlsx"):
-            year = file.split("_")[0]
+            base_name = os.path.basename(file)
+            print("base_name, ",base_name)
+            year = base_name.split("_")[0]
             if year in res:
                 continue
-            year.append(year)
+            res.append(year)
         return res
 
 class GetLabMember:
