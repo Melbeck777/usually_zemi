@@ -100,10 +100,6 @@ td {
     height: 40px;
     max-width: 400px;
 }
-
-input {
-    width: 100px;
-}
 .year {
     font-size: 30px;
     text-align: center;

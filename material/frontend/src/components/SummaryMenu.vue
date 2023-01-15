@@ -40,7 +40,6 @@ export default {
     text-align: center;
 }
 input  {
-    max-width: 100px;
     text-align: center;
 }
 </style>

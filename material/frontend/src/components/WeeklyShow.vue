@@ -14,6 +14,7 @@
             <div class="circle_wrapper" v-for="(person, person_key) in group_info.member" :key="person_key">
                 <p  :class="person_status(member_select[person_key])" @click="select_member(person_key)">{{ person }}</p>
             </div>
+            <input placeholder="検索" class="search" type="text" v-model="keyword">
         </div>
         <div class="title_show">
             <div class="load_title" v-for="(title, title_key) in titles" :key="title_key">
@@ -23,7 +24,7 @@
     </div>
     <br/>
     <div class="weekly_show">
-        <div v-for="(current_meeting, meeting_key) in meeting" :key="meeting_key">
+        <div v-for="(current_meeting, meeting_key) in filteredMeeting" :key="meeting_key">
             <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
                 :member_select="this.member_select" :title_select="this.title_select" :titles="this.titles" :day_index="meeting_key"
                 @load_summary="update_meeting"/>
@@ -47,15 +48,12 @@ export default {
             },
             meeting: [],
             titles: [],
-            month_divide: [],
-            month_flag: [],
             all_member_flag: false,
             all_announcement_flag: false,
-            summary_open_list: [],
-            personal_summary: [],
             edit_flag: [],
             member_select: [],
-            title_select: []
+            title_select: [],
+            keyword:''
         };
     },
     components: {
@@ -149,8 +147,31 @@ export default {
                 var obj = JSON.parse(JSON.stringify(result.data))
                 this.meeting.splice(meeting_key, 1, obj)
             }).catch(error => console.log(error))
-        }
+        },
     },
+    computed:{
+        filteredMeeting:function() {
+            if(this.keyword == "")return this.meeting
+            var meeting = []
+            console.log("this.meeting, ",this.meeting)
+            for(let i = 0; i < this.meeting.length; i++){
+                var current_meeting = this.meeting[i]
+                console.log("current_meeting, ",current_meeting)
+                var now_flag = false
+                for(let j = 0; j < current_meeting.content.length; j++) {
+                    if(!this.member_select[j])continue;
+                    for(let k = 0; k < current_meeting.content[j].length; k++) {
+                        if(now_flag || !this.title_select[k])continue
+                        if(current_meeting.content[j][k].indexOf(this.keyword) !== -1) {
+                            meeting.push(current_meeting)
+                            now_flag = true;
+                        }
+                    }
+                }
+            }
+            return meeting
+        }
+    }
 }
 </script>
 
@@ -276,5 +297,10 @@ textarea {
     padding: 10px;
     max-height: fit-content;
     text-align: left;
+}
+.search {
+    font-size: 20px;
+    width: 200px;
+    margin: 10px;
 }
 </style>
