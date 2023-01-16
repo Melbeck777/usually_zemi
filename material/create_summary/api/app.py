@@ -22,12 +22,14 @@ def show_date(day):
 
 def split_content(content, presenter):
     res_content = []
+    content_exit_flag = False
     for name in presenter:
         current_list = []
         for title in content[name]:
             if len(content[name][title]) == 0:
                 current_list.append("")
                 continue
+            content_exit_flag = True
             current_txt = ""
             for txt in content[name][title]:
                 if len(txt) == 0 or txt == "['']":
@@ -35,7 +37,7 @@ def split_content(content, presenter):
                 current_txt += "{}\n".format(txt)
             current_list.append(current_txt[:-1])
         res_content.append(current_list)
-    return res_content
+    return res_content, content_exit_flag
 
 def list_to_string(str_list):
     res = ""
@@ -119,6 +121,7 @@ return {
             content:list[list],
             announcement:list,
             recorder:str,
+            absence:str,
         }
     ],
     titles:list
@@ -145,7 +148,7 @@ def get_summary_data(year, lab_name, group_name):
             current_dict["content"] = [["" for i in range(len(current_presenter[member_list[0]]))]for i in range(len(current_presenter))]
         else:
             content = RS.get_summary_contents(today_summary_file_name, current_presenter)
-            current_dict["content"] = split_content(content,current_presenter) 
+            current_dict["content"],empty_flag = split_content(content,current_presenter) 
             announcement = RS.get_announcements(today_summary_file_name,current_presenter)
             current_dict["announcement"] = list_to_string(announcement)
             current_dict["recorder"], current_dict["absence"] = RS.get_recorder_absence(today_summary_file_name)
@@ -162,7 +165,6 @@ def load_summary(year, lab_name, group_name, day_index):
     sep_date_flag = post_data['sep_date_flag']
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
-    print("meeting, ",meeting)
     recorder = meeting['recorder']
     absence = meeting['absence']
     if type(announcement) is not list:
@@ -199,10 +201,14 @@ def get_one_meeting(year, lab_name, group_name, meeting_key):
     while os.path.exists(file_name) == False:
         continue
     content = RS.get_summary_contents(file_name, presenter)
-    res["content"] = split_content(content,presenter) 
+    res["content"], content_exit_flag = split_content(content,presenter) 
     announcement = RS.get_announcements(file_name,presenter)
     res["announcement"] = list_to_string(announcement)
-    res["recorder"], res["absence"] = RS.get_recorder_absence(file_name)
+    if content_exit_flag:
+        res["recorder"], res["absence"] = RS.get_recorder_absence(file_name)
+    else:
+        res["recorder"] = ""
+        res["absence"] = ""
     return jsonify(res)
 
 '''
