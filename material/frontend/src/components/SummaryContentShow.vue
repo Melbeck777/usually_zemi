@@ -229,16 +229,16 @@ export default {
                 confirm_text += this.titles[index]
             }
             confirm_text += "\n上記のタイトルを含む資料を作成していますか？"
-            let sep_dateFlag = false;
+            let sep_date_flag = false;
             if(confirm(confirm_text)) {
-                sep_dateFlag = true
+                sep_date_flag = true
             }
             try {
                 let url = `${this.$route.path}/${this.day_index}`
                 console.log("post url", url)
                 await axios.post(url, {
                     meeting:this.meeting,
-                    sep_dateFlag:sep_dateFlag,
+                    sep_date_flag:sep_date_flag,
                 })
             } catch (err) {
                 return
