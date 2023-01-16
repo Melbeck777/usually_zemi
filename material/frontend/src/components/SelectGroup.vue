@@ -104,15 +104,16 @@ td {
     font-size: 30px;
     text-align: center;
     width: 200px;
-    height: 40px;
+    height: 60px;
     background:rgba(233,200,233, 0.4);
 }
 .lab {
     font-size: 30px;
     text-align: center;
     width: 200px;
-    height: 40px;
+    height: 50px;
     background:rgba(0,230,230, 0.4);
+    border-radius: 10px;
     margin-left: 30px;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -121,11 +122,12 @@ td {
     margin: 10px;
 }
 .group {
-    font-size: 30px;
+    font-size: 25px;
     text-align: center;
-    width: 200px;
+    width: 250px;
     height: 40px;
     background:rgba(0,220,0, 0.4);
+    border-radius: 10px;
     margin-left: 60px;
     margin-top: 10px;
 }

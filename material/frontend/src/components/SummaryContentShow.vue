@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="summary_day_wrapper">
-            <p class="summary_day" @click="select_summary">
+            <p :class="[ is_empty ? 'empty' : 'summaryDay', {after : dateFlag}]" @click="select_summary">
                 {{ meeting.day }}
             </p>
         </div>
@@ -85,7 +85,10 @@
 
 <script>
 import axios from 'axios'
+import moment from 'moment'
 
+let today = new Date()
+let tomorrow = new Date(today.getFullYear(),today.getMonth(),today.getDate()+1)
 export default {
     props:["meeting", "member", "member_select", "title_select", "day_index", "titles"],
     data() {
@@ -99,36 +102,38 @@ export default {
             personal_summary:[],
             personal_content:[],
             edit_flag:[],
-            date:{
-                year:0,
-                month:0,
-                day:0,
-            }
+            dateFlag:"",
         }
     },
     created() {
-        console.log('push member_select')
+        console.log('push member_select, ',this.day_index)
+        let now = this.meeting.day.split('/')
+        console.log("meeting.day",now[0],now[1],now[2])
+        let date = new Date(now[0], now[1]-1, now[2])
+        this.dateFlag = date > tomorrow
+        console.log(tomorrow, date, this.dateFlag)
         for(let index = 0; index < this.member.length; index++){
             this.edit_flag.push([])
             this.personal_content.push([])
             for(let sIndex = 0; sIndex < this.titles.length; sIndex++) {
+                console.log("push false edit_flag and personal_content ",index)
                 this.edit_flag[index].push(false)
                 this.personal_content[index].push(false)
             }
             this.personal_summary.push(false)
+            console.log("meeting ",this.day_index, this.meeting)
         }
-        console.log("edit_flag, ",this.edit_flag)
-        console.log("personal_content, ",this.personal_content)
     },
-    mounted() {
-        console.log(this.meeting.day.length)
-        let num_list = this.meeting.day.split("/")
-        this.date.year = num_list[0]-0
-        this.date.month = num_list[1]-0
-        this.date.day = num_list[2]-0
-    },
+    // mounted() {
+    //     console.log(this.meeting.day.length)
+    //     let num_list = this.meeting.day.split("/")
+    //     this.date.year = num_list[0]-0
+    //     this.date.month = num_list[1]-0
+    //     this.date.day = num_list[2]-0
+    // },
     methods:{
         select_summary:function() {
+            if(this.dateFlag) return this.summary_open = false;
             this.summary_open = !this.summary_open
             if(!this.summary_open) {
                 this.recorder_edit_flag = false
@@ -141,7 +146,9 @@ export default {
             this.announcement_open = !this.announcement_open
         },
         close_summary:function() {
+            console.log("close_summary")
             for(let index = 0; index < this.member_select.length; index++) {
+                console.log(index)
                 this.personal_summary.splice(index, 1, false)
                 for(let sIndex = 0; sIndex < this.titles.length; sIndex++) {
                     this.personal_content[index].splice(sIndex, 1, false)
@@ -214,8 +221,6 @@ export default {
             this.edit_flag[person_key].splice(title_key, 1, !this.edit_flag[person_key][title_key])
         },
         async load_summary() {
-            console.log("meeting ",this.meeting)
-            console.log("day_index ",this.day_index)
             let confirm_text = ""
             for(let index = 0; index < this.titles.length; index++) {
                 if (index != 0){
@@ -224,14 +229,16 @@ export default {
                 confirm_text += this.titles[index]
             }
             confirm_text += "\n上記のタイトルを含む資料を作成していますか？"
-            let sep_date_flag = false;
+            let sep_dateFlag = false;
             if(confirm(confirm_text)) {
-                sep_date_flag = true
+                sep_dateFlag = true
             }
             try {
-                await axios.post(`${this.$route.path}/${this.day_index}`, {
+                let url = `${this.$route.path}/${this.day_index}`
+                console.log("post url", url)
+                await axios.post(url, {
                     meeting:this.meeting,
-                    sep_date_flag:sep_date_flag,
+                    sep_dateFlag:sep_dateFlag,
                 })
             } catch (err) {
                 return
@@ -249,11 +256,23 @@ export default {
             }
         }
     },
+    computed:{
+        is_empty() {
+            if(this.dateFlag) return false
+            console.log("empty check, ",this.day_index,this.meeting.recorder)
+            if(this.meeting.recorder === ""){
+                console.log("empty")
+                return true;
+            }
+            console.log("exist recorder")
+            return false;
+        }
+    }
 }
 </script>
 
 <style>
-.summary_day{
+.summaryDay, .empty{
     /* border: rgb(245, 235, 235) solid 0.1em; */
     max-width: 200px;
     margin: 10px;
@@ -266,8 +285,16 @@ export default {
     background-color: white;
     /* border-color: linear-gradient(320deg, #3fc3da, #b7c9fc); */
     border: 10px solid;
-    border-image-source: linear-gradient(320deg, #ca8585, #9785ca);
     border-image-slice: 1;
+}
+.summaryDay {
+    border-image-source: linear-gradient(320deg, #ca8585, #9785ca);
+}
+.empty {
+    border-image-source: linear-gradient(320deg, #f11616, #ede608);
+}
+.after {
+    opacity: 0.5;
 }
 .content_box {
     width: 500px;
@@ -342,4 +369,5 @@ export default {
     margin-top:10px;
     margin-bottom: 10px;
 }
+
 </style>

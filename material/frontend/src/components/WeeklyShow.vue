@@ -36,7 +36,6 @@
 <script>
 import axios from 'axios';
 import SummaryContentShow from './SummaryContentShow.vue';
-
 export default {
     props:["year"],
     data() {
@@ -153,6 +152,7 @@ export default {
         filteredMeeting:function() {
             if(this.keyword == "")return this.meeting
             var meeting = []
+            console.log("start filteredMeeting")
             console.log("this.meeting, ",this.meeting)
             for(let i = 0; i < this.meeting.length; i++){
                 var current_meeting = this.meeting[i]
@@ -169,6 +169,7 @@ export default {
                     }
                 }
             }
+            console.log("end filteredMeeting")
             return meeting
         }
     }
