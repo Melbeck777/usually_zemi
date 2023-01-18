@@ -22,6 +22,17 @@
             </div>
         </div>
     </div>
+    <div class="blank_show">
+        <p>未提出</p>
+        <div v-for="(person, person_key) in group_info.member" :key="person_key">
+            <div v-show="member_select[person_key]">
+                <p>{{ person }}</p>
+                <div v-for="(blank_day, blank_key) in blank[person_key]" :key="blank_key">
+                    <p>{{ blank_day }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <br/>
     <div class="weekly_show">
         <div v-for="(current_meeting, meeting_key) in filteredMeeting" :key="meeting_key">
@@ -45,6 +56,7 @@ export default {
                 group_name: "",
                 member: []
             },
+            blank:[],
             meeting: [],
             titles: [],
             all_member_flag: false,
@@ -126,6 +138,7 @@ export default {
                 this.group_info.member = obj.member
                 this.meeting = obj.meeting
                 this.titles = obj.titles
+                this.blank = obj.blank
                 console.log("obj, ",obj)
                 console.log("obj.member.length, ",obj.member.length)
                 console.log("obj.titles.length, ",obj.titles.length)
@@ -177,6 +190,14 @@ export default {
 </script>
 
 <style>
+.blank_show {
+    position: fixed;
+    font-size: 20px;
+    margin-top: 250px;
+    margin-right: 10px;
+    border: solid;
+}
+
 .content_show {
     z-index: 0;
 }
