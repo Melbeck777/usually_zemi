@@ -2,7 +2,9 @@ from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 import datetime
 import sys
+import queue
 import os
+from pathlib import Path
 sys.path.append("..")
 from module.get_lab_data import GetLabMember
 from module.get_lab_data import GetLabInfo
@@ -55,6 +57,38 @@ def summary_to_dict(summary, presenter):
             for content in summary[index][title_index].split("\n"):
                 presenter[name][title_name].append(content)
     return presenter
+
+def path_to_date(date_str):
+    date = datetime.datetime.strptime(date_str, "%Y%m%d")
+    print(date)
+    res_str = "{}/{}/{}".format(date.year, date.month, date.day)
+    return res_str
+
+def date_to_path(date):
+    return "{}{:0>2}{:0>2}".format(date.year,date.month, date.day)
+
+def get_blank_material_list(fullname_list, folder, schedule):
+    res_list = [[] for i in range(len(fullname_list))]
+    today = datetime.datetime.today()
+    for date in schedule:
+        if today < date:
+            continue
+        path_date = date_to_path(date)
+        date_str = path_to_date(path_date)
+        date_folder = os.path.join(folder, path_date)
+        flag_list = [False for i in range(len(fullname_list))]
+        for now in Path(date_folder).glob("*.pdf"):    
+            base_name_str = str(os.path.basename(now))
+            for index, name in enumerate(fullname_list):
+                print("name, ",name)
+                if name in base_name_str:
+                    print("{} in {}".format(name,now))
+                    flag_list[index] = True
+        for index in range(len(fullname_list)):
+            if flag_list[index]:
+                continue
+            res_list[index].append(date_str)
+    return res_list
 
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
@@ -153,8 +187,11 @@ def get_summary_data(year, lab_name, group_name):
             current_dict["announcement"] = list_to_string(announcement)
             current_dict["recorder"], current_dict["absence"] = RS.get_recorder_absence(today_summary_file_name)
         meeting_list.append(current_dict)
+    res_group_data["blank"] = get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)
+    print("blank,",res_group_data["blank"])
     res_group_data["meeting"] = meeting_list
     res_group_data["titles"] = list(presenter[member_list[0]].keys())
+    # print("res_group_data, ",res_group_data)
     return jsonify(res_group_data)
 
 

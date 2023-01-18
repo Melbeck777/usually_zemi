@@ -32,8 +32,8 @@ class GetLabMember:
         self.member_data_file = os.path.join(reference_folder,"member", "{}_member.xlsx".format(str(self.year)))
         self.member_data = pd.read_excel(self.member_data_file)
         
-        # 研究室，研究班，学年，氏
-        self.target_index = [9,11,0,1]
+        # 研究室，研究班，学年，氏, 氏名
+        self.target_index = [9,11,0,1,5]
         self.teacher_label = "教員"
         self.b3_label = "B3"
         self.columns = self.member_data.columns
@@ -112,7 +112,7 @@ class GetLabMember:
             else:
                 lab_member[lab_name][group_name][degree].append(person_name)
         return lab_member
-
+    
     # member.xlsxから研究室名と班名の対応リストを取得する
     def get_group(self, lab_name):
         group_list = []
@@ -157,6 +157,23 @@ class GetLabData(GetLabMember):
         self.out_folder = os.path.join(reference_folder, "out", group_info[0], group_info[1])
         super().__init__(day.year-self.term,reference_folder)
     
+    
+    def get_fullname_list(self, presenter):
+        fullname_list = []
+        for index, row in enumerate(self.member_data[self.columns[self.target_index[4]]]):
+            if self.member_data[self.columns[self.target_index[0]]][index] != self.group_info[0] or self.member_data[self.columns[self.target_index[1]]][index] != self.group_info[1]:
+                continue
+            fullname_list.append(row)
+
+        res_fullname_list = []
+        for presenter_name in presenter: 
+            for name in fullname_list:
+                if presenter_name in name:
+                    res_fullname_list.append(name.replace(" ",""))
+                    break
+        print(res_fullname_list)
+        return res_fullname_list
+
     def get_term(self,day=None):
         if day is None:
             day = self.day
