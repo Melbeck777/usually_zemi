@@ -26,9 +26,9 @@
         <p>未提出</p>
         <div v-for="(person, person_key) in group_info.member" :key="person_key">
             <div v-show="member_select[person_key]">
-                <p>{{ person }}</p>
+                <p>{{ person }} ({{ blank[person_key].length }})</p>
                 <div v-for="(blank_day, blank_key) in blank[person_key]" :key="blank_key">
-                    <p>{{ blank_day }}</p>
+                    <li>{{ blank_day }}</li>
                 </div>
             </div>
         </div>
@@ -193,9 +193,10 @@ export default {
 .blank_show {
     position: fixed;
     font-size: 20px;
+    width: 200px;
     margin-top: 250px;
-    margin-right: 10px;
-    border: solid;
+    right:0px;
+    border: solid beige;
 }
 
 .content_show {
@@ -254,6 +255,13 @@ button {
     border: whitesmoke;
     border-radius: 10px;
 }
+.person:hover,
+.selected_person:hover,
+.title:hover,
+.selected_title:hover {
+    transform: scale(0.7, 0.7);
+}
+
 button:hover,
 .person:hover,
 .selected_person,
