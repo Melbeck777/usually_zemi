@@ -26,9 +26,9 @@
         <p>未提出</p>
         <div v-for="(person, person_key) in group_info.member" :key="person_key">
             <div v-show="member_select[person_key]">
-                <p>{{ person }} ({{ blank[person_key].length }})</p>
+                <p class="blank_person">{{ person }} ({{ blank[person_key].length }})</p>
                 <div v-for="(blank_day, blank_key) in blank[person_key]" :key="blank_key">
-                    <li>{{ blank_day }}</li>
+                    <li class="blank_day">{{ blank_day }}</li>
                 </div>
             </div>
         </div>
@@ -157,7 +157,8 @@ export default {
             console.log(url)
             await axios.get(url).then(result => {
                 var obj = JSON.parse(JSON.stringify(result.data))
-                this.meeting.splice(meeting_key, 1, obj)
+                this.meeting.splice(meeting_key, 1, obj.meeting)
+                this.blank = obj.blank
             }).catch(error => console.log(error))
         },
     },
@@ -192,11 +193,19 @@ export default {
 <style>
 .blank_show {
     position: fixed;
-    font-size: 20px;
+    font-size: 25px;
     width: 200px;
     margin-top: 250px;
-    right:0px;
+    right:20px;
     border: solid beige;
+}
+.blank_person {
+    text-align: center;
+}
+.blank_day {
+    font-size: 20px;
+    text-align: left;
+    padding-left: 20px;
 }
 
 .content_show {
@@ -263,9 +272,7 @@ button {
 }
 
 button:hover,
-.person:hover,
 .selected_person,
-.title:hover,
 .selected_title {
     opacity: 0.5;
 }

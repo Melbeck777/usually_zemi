@@ -231,21 +231,22 @@ def get_one_meeting(year, lab_name, group_name, meeting_key):
     RS = ReadSummary(group_info, date, reference_folder=reference_folder)
     schedule = RS.LabData.get_schedule(group_info)
     today = schedule[meeting_key]
-    res = {"day":show_date(today), "announcement":[""]}
+    meeting = {"day":show_date(today), "announcement":[""]}
     presenter = RS.LabData.get_presenter()
     member_list = list(presenter.keys())
     file_name = RS.get_summary_file_name(member_list[meeting_key%len(member_list)],today)
     while os.path.exists(file_name) == False:
         continue
     content = RS.get_summary_contents(file_name, presenter)
-    res["content"], content_exit_flag = split_content(content,presenter) 
+    meeting["content"], content_exit_flag = split_content(content,presenter) 
     announcement = RS.get_announcements(file_name,presenter)
-    res["announcement"] = list_to_string(announcement)
+    meeting["announcement"] = list_to_string(announcement)
     if content_exit_flag:
-        res["recorder"], res["absence"] = RS.get_recorder_absence(file_name)
+        meeting["recorder"], meeting["absence"] = RS.get_recorder_absence(file_name)
     else:
-        res["recorder"] = ""
-        res["absence"] = ""
+        meeting["recorder"] = ""
+        meeting["absence"] = ""
+    res = {"meeting":meeting, "blank":get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)}
     return jsonify(res)
 
 '''
