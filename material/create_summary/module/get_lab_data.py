@@ -228,7 +228,7 @@ class GetLabData(GetLabMember):
 
     # ある班のゼミに参加する人を取得する
     # 発表者ではない教授やB3を含む。発表者ではない人について記録することはない
-    def get_participant(self):
+    def get_participant(self,absences=[]):
         lab_member = self.all_lab_member[self.group_info[0]]
         participants = self.get_professor()
         degree_order = {'D':[3,3], 'M':[2,2], 'B':[2,4]}
@@ -239,6 +239,8 @@ class GetLabData(GetLabMember):
                 if current_degree not in group_member:
                     continue
                 for pi in range(len(group_member[current_degree])):
+                    if group_member[current_degree][pi] in absences:
+                        continue
                     participants += "{}, ".format(group_member[current_degree][pi])
         if 'B3' in lab_member:
             participants += self.get_B3()

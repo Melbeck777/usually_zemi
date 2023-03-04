@@ -33,20 +33,19 @@ class MakeSummary:
         self.ignores  = self.ReadMaterial.get_ignores()
     
     # 基本情報の記述
-    def write_basic_info(self,announcements=[],recorder="", absence=""):
+    def write_basic_info(self,announcements=[],recorder="", absence=[]):
         current_template = self.template
         current_template[0] = current_template[0].replace('group_name', self.group_info[1])
         current_template[1] = current_template[1].replace('year',str(self.day.year)).replace('month',str(self.day.month)).replace('day',str(self.day.day))
         current_template[2] += "{}曜日\n".format(self.week_days[self.day.weekday()])
         current_template[3] += "{}:{:0>2}\n".format(self.day.hour,self.day.minute)
-        participant = self.LabData.get_participant()
+        participant = self.LabData.get_participant(absence)
         if recorder == "":
             recorder = self.edit_name
-        else:
-            participant = participant.replace(absence, "").replace(", ,",", ")
+        print("input absence", absence)
         current_template[4] += "{}\n".format(recorder)
         current_template[5] += "{}\n".format(participant)
-        current_template[6] += "{}\n".format(absence)
+        current_template[6] += "{}\n".format(self.member_arrange_to_text(absence))
         target_word = "班全体に対する連絡事項\n"
         start = current_template.index(target_word)+1
         for index in range(len(announcements)):
@@ -114,7 +113,7 @@ class MakeSummary:
         with open(summary_file_name,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
 
-    def create_one_day_summary_edited(self, day_index, edit_summary, announcement, absence=None, recorder=None):
+    def create_one_day_summary_edited(self, day_index, edit_summary, announcement, absence=[], recorder=None):
         day = self.schedule[day_index]
         current_edit_name = self.edit_order[day_index%len(self.edit_order)]
         summary_file_name = self.ReadSummary.get_summary_file_name(current_edit_name)
@@ -133,8 +132,21 @@ class MakeSummary:
         with open(summary_file_name,'w',encoding='utf-8') as f:
             f.writelines(current_summary_text)
 
+    def member_arrange_to_text(self,member):
+        txt = ""
+        already_input = []
+        for name in member:
+            print("name,",name,name == None, name == "")
+            if name == None or name == "" or name in already_input:
+                continue
+            already_input.append(name)
+            txt += "{}, ".format(name)
+        print("member, txt = {},{}".format(member,txt))
+        return txt[:-2]
+    
     # 議事録を作る
     def create_summary(self):
         for day_index,day in enumerate(self.schedule):
             summary_file_name = self.ReadSummary.summary_file_name(day,self.group_info[1])
             self.create_one_day_summary(day_index)
+    
