@@ -68,11 +68,12 @@ class ReadSummary:
             recorder_index = 4 # 議事録作成者
             absence_index = 6 # 欠席者
             recorder = lines[recorder_index].split(":")[1].replace(" ", "")
-            absence = lines[absence_index].split(":")
-            if len(absence) > 1:
-                absence = absence[1].replace(" ","")
-            else:
-                absence = ""
+            absence_text = lines[absence_index].split(":")[1].replace(" ","")
+            absence = []
+            for name in absence_text.split(","):
+                if name == "" or name == 'None' or name == None:
+                    continue
+                absence.append(name)                
             return recorder,absence
 
 
@@ -132,4 +133,4 @@ class ReadSummary:
                 current_title = content[1:]
             elif content[cnt:] != "":
                 member_data[current_name][current_title].append(content[cnt:])
-        return member_data
+        return member_data    
