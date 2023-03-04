@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 import datetime
+import re
 import sys
 import queue
 import os
@@ -19,6 +20,8 @@ app.config["JSON_AS_ASCII"] = False
 CORS(app)
 TODAY = datetime.datetime.today()
 
+ref_name = "参考文献"
+
 def show_date(day):
     return "{}/{}/{}".format(day.year, day.month, day.day)
 
@@ -28,6 +31,10 @@ def split_content(content, presenter):
     for name in presenter:
         current_list = []
         for title in content[name]:
+            if title == ref_name:
+                print(name)
+                current_list.append(get_link(content[name][title]))
+                continue
             if len(content[name][title]) == 0:
                 current_list.append("")
                 continue
@@ -80,15 +87,31 @@ def get_blank_material_list(fullname_list, folder, schedule):
         for now in Path(date_folder).glob("*.pdf"):    
             base_name_str = str(os.path.basename(now))
             for index, name in enumerate(fullname_list):
-                print("name, ",name)
+                # print("name, ",name)
                 if name in base_name_str:
-                    print("{} in {}".format(name,now))
+                    # print("{} in {}".format(name,now))
                     flag_list[index] = True
         for index in range(len(fullname_list)):
             if flag_list[index]:
                 continue
             res_list[index].append(date_str)
     return res_list
+
+# サイトURLや共有サーバリンクを判別する
+def get_link(ref_list):
+    title_link = []
+    url_tag = re.compile("https*")
+    # internal_server = re.compile("\\")
+    for title in ref_list:
+        if url_tag.match(title) != None: # or internal_server.match(title) != None:
+            title_link[-1]["url"] = title
+        elif url_tag.search(title):
+            url_index = title.index("https")
+            title_link.append({"title":title[:url_index], "url":title[url_index:]})
+        else:
+            title_link.append({"title":title, "url":""})
+    # print("title link",title_link)
+    return title_link
 
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
@@ -176,19 +199,21 @@ def get_summary_data(year, lab_name, group_name):
     schedule = RS.LabData.get_schedule(group_info)
     for index, day in enumerate(schedule):
         current_presenter = RS.LabData.get_presenter()
-        current_dict = {"day":show_date(day),"content":[],"announcement":[], "recorder":"", "absence":""}
+        current_dict = {"day":show_date(day),"content":[],"announcement":[], "recorder":"", "absences":[]}
         today_summary_file_name = RS.get_summary_file_name(member_list[index%len(member_list)],day)
         if os.path.exists(today_summary_file_name) == False:
             current_dict["content"] = [["" for i in range(len(current_presenter[member_list[0]]))]for i in range(len(current_presenter))]
         else:
+            print(day)
             content = RS.get_summary_contents(today_summary_file_name, current_presenter)
             current_dict["content"],empty_flag = split_content(content,current_presenter) 
             announcement = RS.get_announcements(today_summary_file_name,current_presenter)
             current_dict["announcement"] = list_to_string(announcement)
-            current_dict["recorder"], current_dict["absence"] = RS.get_recorder_absence(today_summary_file_name)
+            current_dict["recorder"], current_dict["absences"] = RS.get_recorder_absence(today_summary_file_name)
+        print("absences,",current_dict["absences"])
         meeting_list.append(current_dict)
     res_group_data["blank"] = get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)
-    print("blank,",res_group_data["blank"])
+    # print("blank,",res_group_data["blank"])
     res_group_data["meeting"] = meeting_list
     res_group_data["titles"] = list(presenter[member_list[0]].keys())
     # print("res_group_data, ",res_group_data)
@@ -203,7 +228,8 @@ def load_summary(year, lab_name, group_name, day_index):
     edit_summary_content = meeting['content']
     announcement = meeting['announcement']
     recorder = meeting['recorder']
-    absence = meeting['absence']
+    absences = meeting['absences']
+    print("absences, ",absences)
     if type(announcement) is not list:
         announcement = announcement.split("\n")
     if sep_date_flag:
@@ -213,7 +239,7 @@ def load_summary(year, lab_name, group_name, day_index):
         MS = MakeSummary([lab_name, group_name], day_index, reference_folder, sep_date)
     presenter = MS.LabData.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
-    MS.create_one_day_summary_edited(day_index,edit_summary,announcement,absence,recorder)
+    MS.create_one_day_summary_edited(day_index,edit_summary,announcement,absences,recorder)
     return jsonify({})
 
 '''
@@ -221,7 +247,8 @@ return {
     day:yyyy/mm/dd,
     announcement:list
     content:list[list],
-    recorder:str
+    recorder:str,
+    absences:list
 }
 '''
 @app.route('/summary/<int:year>/<lab_name>/<group_name>/weekly/<int:meeting_key>' , methods=['GET'])
@@ -242,27 +269,20 @@ def get_one_meeting(year, lab_name, group_name, meeting_key):
     announcement = RS.get_announcements(file_name,presenter)
     meeting["announcement"] = list_to_string(announcement)
     if content_exit_flag:
-        meeting["recorder"], meeting["absence"] = RS.get_recorder_absence(file_name)
+        meeting["recorder"], meeting["absences"] = RS.get_recorder_absence(file_name)
     else:
         meeting["recorder"] = ""
-        meeting["absence"] = ""
+        meeting["absences"] = []
+    print("{border}\n{meeting}\n{border}".format(border="-"*30,meeting=meeting))
     res = {"meeting":meeting, "blank":get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)}
     return jsonify(res)
 
-'''
-return {
-    member:list,
-    meeting_list:[
-        {
-            day:year/month/day.
-            content:list,
-            announcement:list   
-        }
-    ],
-}
-'''
-# @app.route('/summary/<int:year>/<lab_name>/<group_name>/monthly', methods=['GET'])
-# def get_month_show(year,lab_name, group_name, month): 
+@app.route('/summary/<int:year>/<lab_name>/<group_name>/add_date', methods=['POST'])
+def add_date(year,lab_name,group_name):
+    group_info = [lab_name, group_name]
+    post_data = request.get_json()
+    add_date = post_data["day"]
+    
 
 
 if __name__ == "__main__":
