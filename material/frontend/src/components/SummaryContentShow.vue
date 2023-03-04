@@ -9,25 +9,25 @@
         <div v-show="summary_open">
             <div class="info_wrapper">
                 <label class="record">議事録記録者</label>
-                <p v-show="!recorder_edit_flag" class="record-content">
-                    {{ meeting.recorder }}
-                </p>
-                <textarea class="edit_single_line" v-show="recorder_edit_flag" cols="10" rows="1" v-model="meeting.recorder">
-                    {{ meeting.recorder }}
-                </textarea>
-                <button v-show="!recorder_edit_flag" @click="edit_recorder()">Edit</button>
-                <button v-show="recorder_edit_flag"  @click="edit_recorder()">Read</button>    
+                <select v-model="this.meeting.recorder" class="select_event">
+                    <option disabled value="">議事録作成者</option>
+                    <option v-for="(person, person_key) in this.group_info.member" :key="person_key" :value="person">
+                        {{ person }}
+                    </option>
+                </select>
             </div>
             <div class="info_wrapper">
                 <label class="record">欠席者</label>
-                <p class="record-content" v-show="absence_edit_flag == false">
-                    {{ meeting.absence }}
-                </p>
-                <textarea class="edit_single_line" v-show="absence_edit_flag" cols="10" rows="1" v-model="meeting.absence">
-                    {{ meeting.absence }}
-                </textarea>
-                <button v-show="!absence_edit_flag" @click="edit_absence()">Edit</button>
-                <button v-show="absence_edit_flag"  @click="edit_absence()">Read</button>    
+                <div v-for="(name, num) in this.meeting.absences" class="same_col" :key="num">
+                    <select class="select_event" v-model="this.meeting.absences[num]">
+                        <option disabled value="">欠席者</option>
+                        <option v-for="(person, person_key) in this.group_info.member" :key="person_key" :value="person">
+                            {{ person }}
+                        </option>
+                    </select>
+                </div>
+                <button v-if="this.meeting.absences.length < member_select.length" class="same_col add_button" @click="add_absence">+</button>
+                <button v-if="this.meeting.absences.length > 0" class="same_col add_button" @click="minus_absence">-</button>
             </div>
             <div class="circle_wrapper content_info" v-show="announcement_button_flag">
                 <p v-show="announcement_button_flag" :class="!announcement_open ? 'person':'selected_person'" @click="select_announcement">
@@ -44,7 +44,7 @@
                 <button v-show="!announcement_edit_flag" @click="edit_announcement()">Edit</button>
                 <button v-show="announcement_edit_flag"  @click="edit_announcement()">Read</button>
             </div>
-            <div v-for="(person, person_key) in member" :key="person_key">
+            <div v-for="(person, person_key) in this.group_info.member" :key="person_key">
                 <div v-show="member_select[person_key]">
                     <div class="circle_wrapper content_info">
                         <p :class="personal_status(person_key)" @click="select_personal_summary(person_key)">
@@ -54,10 +54,23 @@
                     <br/>
                     <div v-show="personal_summary[person_key]" v-for="(title, title_key) in titles" :key="title_key" class="content_box">
                         <div v-show="title_select[title_key]">
-                            <p :class="title_status(title_key)" @click="select_personal_content(person_key, title_key)">
-                                {{ title }}
-                            </p>
+                            <div class="1">
+                                <p :class="title_status(title_key)" @click="select_personal_content(person_key, title_key)">
+                                    {{ title }}
+                                </p>
+                            </div>
                             <div>
+                                <p v-show="edit_flag[person_key][title_key] === false" class="content read-only">
+                                    {{ meeting.content[person_key][title_key] }}
+                                </p>
+                                <textarea class="content" v-show="edit_flag[person_key][title_key]" cols="30" rows="10" v-model="meeting.content[person_key][title_key]">
+                                    {{ meeting.content[person_key][title_key] }}
+                                </textarea>
+                                <br/>
+                                <button v-show="!edit_flag[person_key][title_key]" @click="edit_summary(person_key, title_key)">Edit</button>
+                                <button v-show="edit_flag[person_key][title_key]" @click="edit_summary(person_key, title_key)">Read</button>
+                            </div>
+                            <!-- <div>
                                 <div v-show="personal_content[person_key][title_key]">
                                     <p v-show="edit_flag[person_key][title_key] === false" class="content read-only">
                                         {{ meeting.content[person_key][title_key] }}
@@ -69,7 +82,7 @@
                                     <button v-show="!edit_flag[person_key][title_key]" @click="edit_summary(person_key, title_key)">Edit</button>
                                     <button v-show="edit_flag[person_key][title_key]" @click="edit_summary(person_key, title_key)">Read</button>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
 
@@ -90,14 +103,12 @@ import moment from 'moment'
 let today = new Date()
 let tomorrow = new Date(today.getFullYear(),today.getMonth(),today.getDate()+1)
 export default {
-    props:["meeting", "member", "member_select", "title_select", "day_index", "titles"],
+    props:["meeting", "group_info", "member_select", "title_select", "day_index", "titles", "year"],
     data() {
         return {
             announcement_open:false,
             announcement_button_flag:false,
             announcement_edit_flag:false,
-            recorder_edit_flag:false,
-            absence_edit_flag:false,
             summary_open:false,
             personal_summary:[],
             personal_content:[],
@@ -106,22 +117,23 @@ export default {
         }
     },
     created() {
-        console.log('push member_select, ',this.day_index)
+        // console.log('push member_select, ',this.day_index)
+        this.absence_num = this.meeting.absences.length;
         let now = this.meeting.day.split('/')
-        console.log("meeting.day",now[0],now[1],now[2])
+        // console.log("meeting.day",now[0],now[1],now[2])
         let date = new Date(now[0], now[1]-1, now[2])
         this.dateFlag = date > tomorrow
         console.log(tomorrow, date, this.dateFlag)
-        for(let index = 0; index < this.member.length; index++){
+        for(let index = 0; index < this.group_info.member.length; index++){
             this.edit_flag.push([])
             this.personal_content.push([])
             for(let sIndex = 0; sIndex < this.titles.length; sIndex++) {
-                console.log("push false edit_flag and personal_content ",index)
+                // console.log("push false edit_flag and personal_content ",index)
                 this.edit_flag[index].push(false)
                 this.personal_content[index].push(false)
             }
             this.personal_summary.push(false)
-            console.log("meeting ",this.day_index, this.meeting)
+            // console.log("meeting ",this.day_index, this.meeting)
         }
     },
     // mounted() {
@@ -179,8 +191,31 @@ export default {
         edit_recorder() {
             this.recorder_edit_flag = !this.recorder_edit_flag
         },
-        edit_absence() {
-            this.absence_edit_flag = !this.absence_edit_flag
+        add_absence() {
+            this.meeting.absences.push("");
+            console.log(this.meeting.absences,this.meeting.absences.length)
+        },
+        minus_absence() {
+            this.meeting.absences.pop();
+        },
+        check_absence(person) {
+            console.log("person",person)
+            console.log("return",this.absences.indexOf(person) === -1)
+            return this.absences.indexOf(person) === -1;
+        },
+        check_absence_before_post() {
+            console.log("before check")
+            let res_absence = [];
+            for(var i = 0; i < this.meeting.absences.length; i++) {
+                console.log(this.meeting.absences[i],typeof(this.meeting.absences[i]));
+                if(typeof(this.meeting.absences[i]) === "undefined") {continue;}
+                else if(res_absence.indexOf(this.meeting.absences[i]) != -1){continue;}
+                console.log("input name,",this.meeting.absences[i])
+                res_absence.push(this.meeting.absences[i]);
+            }
+            this.meeting.absences.splice(0, this.meeting.absences.length)
+            this.meeting.absences.push(...res_absence)
+            console.log("after check", this.meeting.absences)
         },
         select_title(key) {
             this.title_select[key] = !this.title_select[key]
@@ -211,7 +246,7 @@ export default {
             this.personal_summary.splice(key, 1, false)
         },
         close_title:function(key) {
-            for(let index = 0; index < this.member.length; index++) {
+            for(let index = 0; index < this.member_select.length; index++) {
                 this.edit_flag[index].splice(key, 1, false)
                 this.personal_content[index].splice(key, 1, false)
             }
@@ -236,6 +271,8 @@ export default {
             try {
                 let url = `${this.$route.path}/${this.day_index}`
                 console.log("post url", url)
+                await this.check_absence_before_post();
+                console.log("post meeting",this.meeting)
                 await axios.post(url, {
                     meeting:this.meeting,
                     sep_date_flag:sep_date_flag,
@@ -259,12 +296,12 @@ export default {
     computed:{
         is_empty() {
             if(this.dateFlag) return false
-            console.log("empty check, ",this.day_index,this.meeting.recorder)
+            // console.log("empty check, ",this.day_index,this.meeting.recorder)
             if(this.meeting.recorder === ""){
-                console.log("empty")
+                // console.log("empty")
                 return true;
             }
-            console.log("exist recorder")
+            // console.log("exist recorder")
             return false;
         }
     }
@@ -274,7 +311,7 @@ export default {
 <style>
 .summaryDay, .empty{
     /* border: rgb(245, 235, 235) solid 0.1em; */
-    max-width: 200px;
+    width: 200px;
     margin: 10px;
     padding: 10px;
     cursor: pointer;
@@ -369,5 +406,12 @@ export default {
     margin-top:10px;
     margin-bottom: 10px;
 }
-
+.same_col {
+    display: inline-block;
+}
+.select_event {
+    width: 100px;
+    height: 40px;
+    margin:0px 10px;
+}
 </style>

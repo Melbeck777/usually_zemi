@@ -36,12 +36,14 @@
     <br/>
     <div class="weekly_show">
         <div v-for="(current_meeting, meeting_key) in filteredMeeting" :key="meeting_key">
-            <SummaryContentShow ref="content_show" :member="this.group_info.member" :meeting="current_meeting"
-                :member_select="this.member_select" :title_select="this.title_select" :titles="this.titles" :day_index="meeting_key"
+            <SummaryContentShow ref="content_show" :group_info="this.group_info" :meeting="current_meeting"
+                :member_select="this.member_select" :title_select="this.title_select" :titles="this.titles" :day_index="meeting_key" :year="this.$route.params['year']" 
                 @load_summary="update_meeting"/>
         </div>
+        <button class="add_button">
+            +
+        </button>
     </div>
-
 </template>
 
 <script>
@@ -83,6 +85,7 @@ export default {
             }
         },
         select_title(key) {
+            console.log("year",this.year)
             this.title_select.splice(key, 1, !this.title_select[key])
             if (!this.title_select[key]) {
                 for (let index = 0; index < this.meeting.length; index++) {
@@ -149,9 +152,10 @@ export default {
                     this.title_select.push(false)
                 }
                 console.log("meeting, ",this.meeting)
-                console.log("end fetch dta")
+                console.log("end fetch data")
             })
         },
+        // 議事録の更新
         async update_meeting(meeting_key) {
             let url = `${this.$route.path}/${meeting_key}`
             console.log(url)
@@ -160,7 +164,16 @@ export default {
                 this.meeting.splice(meeting_key, 1, obj.meeting)
                 this.blank = obj.blank
             }).catch(error => console.log(error))
+            console.log('update meeting,',this.meeting)
         },
+        // 予定の追加
+        async add_meeting(add_date) {
+            let url = `${this.$route.path}/add_day`
+            await axios.post(url, {
+                day:add_date
+            })
+            this.fetch_data()
+        }
     },
     computed:{
         filteredMeeting:function() {
@@ -316,6 +329,10 @@ button:hover,
     max-width: auto;
 }
 
+.load_title {
+    background:linear-gradient(320deg, #b5ca85, #85ca87);
+    margin:5px 10px;
+}
 .title, .selected_title {
     width: 150px;
     margin: 10px;
@@ -326,9 +343,6 @@ button:hover,
     font-size: 20px;
     background-color: white;
     /* border-color: linear-gradient(320deg, #3fc3da, #b7c9fc); */
-    border: 10px solid;
-    border-image-source: linear-gradient(320deg, #b5ca85, #85ca87);
-    border-image-slice: 1;
 }
 textarea {
     padding: 10px;
@@ -339,5 +353,14 @@ textarea {
     font-size: 20px;
     width: 200px;
     margin: 10px;
+}
+.add_button {
+    margin: 10px;
+    border-radius: 50%;
+    background: #d1d3bcd9;
+    width: 50px;
+    height: 50px;
+    padding:5px;
+    font-size: 20px;
 }
 </style>
