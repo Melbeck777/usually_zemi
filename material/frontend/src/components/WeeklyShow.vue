@@ -240,9 +240,9 @@ export default {
 .circle_wrapper {
     border-radius: 50%;
     background: linear-gradient(320deg, #3fc3da, #b7c9fc);
-    line-height: 90px;
-    width: 90px;
-    height: 90px;
+    line-height: 80px;
+    width: 80px;
+    height: 80px;
     padding:5px;
     margin:10px;
 }
@@ -315,13 +315,13 @@ button:hover,
 
 .person,
 .selected_person {
-    font-size: 25px;
+    font-size: 20px;
     color: black;
     background-color: white;
     text-align: center;
-    line-height: 80px;
-    width: 80px;
-    height: 80px;
+    line-height: 70px;
+    width: 70px;
+    height: 70px;
     border-radius: 50px;
     z-index: 0;
 }
@@ -334,9 +334,9 @@ button:hover,
     margin:5px 10px;
 }
 .title, .selected_title {
-    width: 150px;
+    width: 120px;
     margin: 10px;
-    padding: 10px;
+    padding: 5px;
     cursor: pointer;
     white-space: pre-wrap;
     text-align: center;

@@ -54,7 +54,7 @@
                     <br/>
                     <div v-show="personal_summary[person_key]" v-for="(title, title_key) in titles" :key="title_key" class="content_box">
                         <div v-show="title_select[title_key]">
-                            <div class="1">
+                            <div class="load_title">
                                 <p :class="title_status(title_key)" @click="select_personal_content(person_key, title_key)">
                                     {{ title }}
                                 </p>
@@ -342,6 +342,9 @@ export default {
 .info_wrapper {
     height: 60px;
     line-height: 40px;
+    text-align: left;
+    width: 750px;
+    margin: auto;
 }
 .announcement, .selected_announcement {
     font-size: 30px;
@@ -367,6 +370,8 @@ export default {
     height: 40px;
     padding: auto;
     display: inline-block;
+    border: groove #ff730038;
+    line-height: normal;
 }
 .record {
     text-align: center;
