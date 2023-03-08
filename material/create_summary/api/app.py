@@ -32,8 +32,9 @@ def split_content(content, presenter):
         current_list = []
         for title in content[name]:
             if title == ref_name:
-                print(name)
+                # print(name)
                 current_list.append(get_link(content[name][title]))
+                # print(ref_name,current_list[-1])
                 continue
             if len(content[name][title]) == 0:
                 current_list.append("")
@@ -102,6 +103,8 @@ def get_link(ref_list):
     title_link = []
     url_tag = re.compile("https*")
     # internal_server = re.compile("\\")
+    if len(ref_list) == 0:
+        return ""
     for title in ref_list:
         if url_tag.match(title) != None: # or internal_server.match(title) != None:
             title_link[-1]["url"] = title
@@ -210,7 +213,8 @@ def get_summary_data(year, lab_name, group_name):
             announcement = RS.get_announcements(today_summary_file_name,current_presenter)
             current_dict["announcement"] = list_to_string(announcement)
             current_dict["recorder"], current_dict["absences"] = RS.get_recorder_absence(today_summary_file_name)
-        print("absences,",current_dict["absences"])
+        # print("absences,",current_dict["absences"])
+        # print("content,",current_dict["content"])
         meeting_list.append(current_dict)
     res_group_data["blank"] = get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)
     # print("blank,",res_group_data["blank"])
