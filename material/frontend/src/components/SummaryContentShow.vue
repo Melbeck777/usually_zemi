@@ -334,7 +334,7 @@ export default {
     opacity: 0.5;
 }
 .content_box {
-    width: 500px;
+    width: 1000px;
     max-height: 300px;
     margin: 10px;
     display: inline-block;
@@ -395,16 +395,15 @@ export default {
     font-size:20px;
     white-space: pre-wrap;
     text-align: left;
-    width: 500px;
-    height: 100px;
-    margin: 10px;
+    width: 750px;
+    max-width: 800px;
+    margin: auto;
     border: black solid 0.1em;
 }
 .read-only {
     color:black;
     background-color: white;
     padding: 10px;
-    margin:auto;
     overflow: auto;
 }
 .load_button {
