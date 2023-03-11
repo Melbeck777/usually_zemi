@@ -1,10 +1,10 @@
 <template>
     <div>
-        <Header />
+        <Header v-show="userLogin"/>
         <div class="container">
-            <router-view></router-view>
+            <router-view @loginSuccess="loginSuccess"></router-view>
         </div>
-        <Footer />
+        <Footer/>
     </div>
 
 </template>
@@ -14,9 +14,22 @@ import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 export default {
     name: 'App',
+    data() {
+        return {
+            userLogin:false,
+        }
+    },
     components: {
         Header,
         Footer
+    },
+    methods:{
+        loginSuccess() {
+            this.userLogin = true;
+        },
+        logout() {
+            this.userLogin = false;
+        }
     }
 }
 </script>

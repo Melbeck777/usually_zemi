@@ -5,12 +5,24 @@ import SummaryShow from './components/SummaryShow.vue'
 import SelectGroup from './components/SelectGroup.vue'
 import Top from './components/Top.vue'
 import MonthlyShow from './components/MonthlyShow.vue'
+import SignIn from './components/SignIn.vue'
+import Login from './components/Login.vue'
 
 const routes = [
     {
         path:'/',
         name:'top',
         component:Top
+    },
+    {
+        path:'/signIn',
+        name:'singIn',
+        component:SignIn
+    },
+    {
+        path:'/login',
+        name:'login',
+        component:Login
     },
     {
         path:'/summary',
