@@ -1,16 +1,24 @@
 <template>
     <h1 class="top_view">Enjoy<br/>Your<br/>Research<br/>Life...</h1>
+    <button class="move" @click="login">Login</button>
+    <button class="move" @click="sing_in">Sign In</button>
 </template>
 
 <script>
 export default {
     methods:{
-        summary:function() {
+        summary() {
             console.log(this.$router)
             this.$router.push({name:'summary_menu'})
         },
-        index:function() {
+        index() {
             console.log('Next development function...')
+        },
+        sing_in() {
+            this.$router.push({name:'singIn'})
+        },
+        login() {
+            this.$router.push({name:'login'})
         }
     }
 }
