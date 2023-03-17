@@ -269,8 +269,9 @@ dt.group_flag::before {
 }
 
 button {
-    background: linear-gradient(320deg, #da913f, #fcdcb7);
-    color: black;
+    /* background: linear-gradient(320deg, #da913f, #fcdcb7); */
+    background-color: #3fdada;
+    color: white;
     font: 20px bold;
     padding: 5px 10px;
     margin: 5px 10px;
