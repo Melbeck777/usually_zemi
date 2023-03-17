@@ -132,37 +132,6 @@ Press CTRL+C to quit
 
 <div style="page-break-before:always"></div>
 
-## 次の課題
-- [x] create_summaryのモジュール化
-  - [x] get_lab_data
-  - [x] read_summary
-  - [x] read_material
-  - [x] make_summary
-- [ ] create_summaryのウェブアプリ化
-  - [ ] 設定
-    - [ ] 参照フォルダの指定
-    - [ ] 予定の追加
-    - [x] 年度、研究室、研究班を1つのページで選択できるようにする。
-    - [ ] メンバーの更新
-  - [x] 議事録表示
-    - [x] ある一意の班の情報のみを表示するコンポーネントを作成
-    - [x] 特定の人の議事録を表示
-    - [x] 全体への連絡事項を表示
-    - [x] 記録者の表示
-    - [x] 各自の記録内容をタイトルごとに表示
-  - [x] 議事録読み込み
-    - [x] 研究室の指定
-    - [x] 班の指定
-    - [x] 出力日の指定
-    - [x] Loadの実装
-  - [x] 議事録修正・更新
-    - [x] 表示で全ての議事録を編集可能な状態で表示
-    - [x] Saveの実装
-    - [x] Save後の表示の反映
-    - [x] 記録者の修正機能の追加
-    - [x] 全体への連絡事項の修正機能の追加
-
-<div style="page-break-before:always"></div>
 
 ## 工夫した点
 - この `README.md`を読み込んで、資料から読み出すタイトルを決定したこと。
