@@ -31,14 +31,22 @@
             </tr>
             <tr class="input_div">
                 <td class="user_info">
-                    <select class="user_select" v-model="labName">
-                        <option v-for="(lab, lab_key) in labNames" :key="lab_key">{{ lab }}</option>
+                    <select v-show="!labFlag" class="user_select" v-model="labName">
+                        <option v-for="(lab, lab_key) in labInfo" :key="lab_key">{{ lab }}</option>
                     </select>
+                    <button v-show="!labFlag" @click="checkLab">新規</button>
+                    <input type="text" v-model="labName">
+                    <button v-show="labFlag" @click="addLab">追加</button>
+                    <button v-show="labFlag" @click="checkLab">選択</button>
                 </td>
                 <td class="user_info">
                     <select class="user_select" v-model="groupName">
-                        <option v-for="(group, group_key) in selectedGroups" :key="group_key">{{ group }}</option>
+                        <option v-for="(group, group_key) in selectedTeams" :key="group_key">{{ group }}</option>
                     </select>
+                    <button v-show="!labFlag" @click="checkTeam">新規</button>
+                    <input type="text" v-model="labName">
+                    <button v-show="labFlag" @click="addTeam">追加</button>
+                    <button v-show="labFlag" @click="checkTeam">選択</button>
                 </td>
             </tr>
             <tr>
@@ -68,7 +76,7 @@
                 </td>
             </tr>
         </table>
-        <button class="move_button" @click="submit">Register</button>
+        <button class="move_button" @click="register">Register</button>
     </div>
 </template>
 
@@ -82,18 +90,26 @@ export default {
             secondName:"",
             firstKana:"",
             secondKana:"",
+            labId:-1,
             labName:"",
+            groupId:-1,
             groupName:"",
             grade:"",
             studentNumber:"",
             emailAddress:"",
             password:"",
-            grades:["B3","B4","M1","M2","D1","D2","D3","教員"],
-            selectedGroups:[],
+            grades:[],
+            selectedTeams:[],
+            labInfo:[],
+            labFlag:false,
+            teamFlag:false
         }
     },
+    created() {
+
+    },
     methods:{
-        async submit() {
+        async register() {
             let url = `${this.$route.path}`
             let result = await axios.post(url,{
                 firstName:this.firstName,
@@ -113,16 +129,31 @@ export default {
                 window.alert('認証失敗\nすでにメールアドレスが登録されている可能性があります')
                 this.$router.push({name:'login'})
             }
+        },
+        checkLab() {
+            this.labFlag = !this.labFlag;
+        },
+        addLab() {
+            axios.post(`${this.$route.path}/lab`)
+        },
+        checkTeam() {
+            this.labFlag = !this.labFlag;
+        },
+        addTeam() {
+            axios.post(`${this.$route.path}/team`)
+        },
+        fetch_data() {
+            axios.get(this.$route.path).then((result) => {
+                var obj = JSON.parse(JSON.stringify(result.data));
+                this.labInfo = obj.labInfo;
+                this.groups = this.groups;
+            })
         }
     },
     watch: {
         'labName':async function() {
-            let result = await axios.get(`${this.$route.push}/${this.labName}`);
-            if(result.length > 0){
-                this.selectedGroups = result
-            } else {
-                return false;
-            }
+            this.labId = this.labInfo[this.labName].id;
+            this.selectedTeams = this.labInfo[this.labName].team;
         }
     }
 }
@@ -156,6 +187,7 @@ export default {
     min-width: 100px;
     max-width: 350px;
     font-size: 15px;
+    text-align: center;
 }
 .move_button {
     font: white;
