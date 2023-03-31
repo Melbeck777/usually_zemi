@@ -14,7 +14,8 @@
             </td>
         </tr>
     </table>
-    <button class="move" @click="user_check()">Login</button>
+    <button class="move" @click="user_check">Login</button>
+    <button class="move" @click="sign_in">New</button>
 </template>
 
 <script>
@@ -40,7 +41,7 @@ export default {
                 this.$emit("loginSuccess");
             },(error)  => {
                 console.log(error)
-            }) 
+            })
         },
         onClick() {
             this.isChecked = !this.isChecked;
@@ -50,7 +51,11 @@ export default {
         },
         iconType() {
             return this.isChecked ? "fa-solid fa-eye-slash":"fa-solid fa-eye";
-        }
+        },
+        sign_in() {
+            console.log("New button")
+            this.$router.push({name:'singIn'})
+        },
     }
 }
 
