@@ -1,0 +1,196 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Create Summary
+  description: This is a create summary api.
+servers:
+  - url: http://127.0.0.1:5000/
+    description: Development Environment
+paths:
+  /SignIn:
+    get:
+      description: ユーザ登録
+      operationId: SignIn
+      responses:
+        '200':
+          description: 成功時
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                  age:
+                    type: integer
+                  create_at:
+                    type: string
+                    format: date-time
+                  update_at:
+                    type: string
+                    format: date-time
+    post:
+      description: ユーザ更新
+      operationId: UserUpdate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ユーザID
+      requestBody:
+        content:
+          application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                  age:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  update_at:
+                    type: string
+                    format: date-time
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        labId:
+                          type: integer
+                          format: int32
+                        groupName:
+                          type: string
+                        groupId:
+                          type: integer
+      responses:
+        '200':
+          description: 成功時
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flag:
+                    type: boolean
+  /login:
+    post:
+      description: ログイン
+      operationId: Login
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ログイン
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                emailAddress:
+                  type: string
+                  format: emailAddress
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: 成功時
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flag:
+                    type: boolean
+  /{user_id}/user:
+    get:
+      description: ユーザ情報
+      operationId: User
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+      responses:
+        '200':
+          description: 成功時
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  secondName:
+                    type: string
+                  emailAddress:
+                    type: string
+                    format: emailAddress
+                  labName:
+                    type: string
+                  groupName:
+                    type: string
+                  grade:
+                    type: string
+  /{user_id}/summary:
+    get:
+      description: 班の年度を選択する
+      operationId: summary_year
+      parameters:
+        - name: user_id
+          in: path
+          description: ユーザID
+          required: true
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                format: int32
+      responses:
+        '200':
+          description: 成功時
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      years:
+                        type: array
+                        items:
+                          type: integer
+  /{user_id}/summary/{teamId}:
+    get:
+      description: 所属研究室の特定の班の情報を表示する
+      operationId: teamId
+      parameters:
+        - name: teamId
+          in: path
+          description: チームID
+          required: true
+          
