@@ -6,18 +6,17 @@ import sys
 import queue
 import os
 from pathlib import Path
+from sqlalchemy.exc import IntegrityError
+import traceback
 sys.path.append("..")
 from module.get_lab_data import GetLabMember
 from module.get_lab_data import GetLabInfo
 from module.read_summary import ReadSummary
 from module.make_summary import MakeSummary
+from api.model.model import User, Grade, Lab, Team, Authority, Schedule, Title, db
+from api.__init__ import app
 
-index_folder = "../../frontend/dist"
-static_folder = "{}/_assets".format(index_folder)
 reference_folder = ".."
-app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
-app.config["JSON_AS_ASCII"] = False
-CORS(app)
 TODAY = datetime.datetime.today()
 
 ref_name = "参考文献"
@@ -85,7 +84,7 @@ def get_blank_material_list(fullname_list, folder, schedule):
         date_str = path_to_date(path_date)
         date_folder = os.path.join(folder, path_date)
         flag_list = [False for i in range(len(fullname_list))]
-        for now in Path(date_folder).glob("*.pdf"):    
+        for now in Path(date_folder).glob("*.pdf"):
             base_name_str = str(os.path.basename(now))
             for index, name in enumerate(fullname_list):
                 # print("name, ",name)
@@ -116,11 +115,86 @@ def get_link(ref_list):
     # print("title link",title_link)
     return title_link
 
+def labNameToId(labName):
+    with app.app_context():
+        labs = db.session.query(Lab).filter(Lab.name==labName).all()
+        if len(labs) == 1:
+            return labs[0].id
+        else:
+            return -1
+
+def labIdToName(labId):
+    with app.app_context():
+        lab = db.session.query(Lab).get(labId)
+        if lab == None:
+            return None
+        else:
+            return lab.name
+
+
+def teamNameToId(teamName):
+    with app.app_context():
+        team = db.session.query(Team).filter(Team.name==teamName).all()
+        if len(team) > 1:
+            return team.id
+        else:
+            return -1
+
+def recordUser(post_data):
+    labId = labNameToId(post_data["labName"])
+    teamId = teamNameToId(post_data["teamName"])
+    post_data["teamId"] = teamId
+    post_data["labId"] = labId
+    user = User.recordUser(post_data)
+    return user.id
+
+def addDateDb(dateDict):
+    with app.app_context():
+        Schedule.recordDate(dateDict)
+
 @app.route('/',defaults={'path':''})
 @app.route('/<path:path>')
 def index(path):
     return render_template("index.html")
 
+
+'''
+return {
+    [
+        id:int,
+        ## firstName only or "{firstName} {SecondName}"
+        name:string
+    ]
+}
+'''
+@app.route('/signIn',methods=["POST"])
+def register():
+    post_data = request.get_json()
+    flag = False
+    try:
+        flag = True
+        new_user = User.recordUser(post_data)
+    except:
+        print(traceback.format_exc())
+        db.session.rollback()
+    return flag
+
+'''
+return {
+    [
+        flag:bool
+    ]
+}
+'''
+@app.route('/login',methods=["POST"])
+def checkUser():
+    # emailAddress, password
+    post_data = request.get_json()
+    result = False
+    user = db.session.query(User).filter(User.emailAddress == post_data['emailAddress'])
+    if user.password == post_data["password"]:
+        result = True
+    return jsonify({"result":result})
 
 '''
 return {
@@ -286,6 +360,11 @@ def add_date(year,lab_name,group_name):
     group_info = [lab_name, group_name]
     post_data = request.get_json()
     add_date = post_data["day"]
+    lab_id = labNameToId(labName=lab_name)
+    team_id = teamNameToId(group_name)
+    Place  = post_data["Place"]
+
+
     
 
 
