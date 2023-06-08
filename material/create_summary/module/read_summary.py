@@ -5,15 +5,14 @@ import shutil
 from .get_lab_data import GetLabData
 
 class ReadSummary:
-    def __init__(self, group_info, day, reference_folder=".", zemi_folder="."):
+    def __init__(self, group_info, day, reference_folder="."):
         self.group_info = group_info
         self.day = day
         self.reference_folder = reference_folder
-        self.zemi_folder = zemi_folder
         self.template = self.get_template()
         self.LabData = GetLabData(group_info,day,reference_folder)
-        self.out_folder = self.LabData.out_folder
-        self.pdf_folder = self.LabData.pdf_folder
+        self.out_folder = self.LabData.out_folder.format(self.group_info[1],self.day.year)
+        self.pdf_folder = self.LabData.pdf_folder.format(self.group_info[1],self.day.year)
 
 
     # 議事録のテンプレートを取得

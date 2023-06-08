@@ -27,8 +27,8 @@ class MakeSummary:
         self.ReadMaterial = ReadMaterial(group_info,self.day, self.edit_name, reference_folder)
         self.bullet_names = self.LabData.get_title_names()
         self.template   = self.ReadSummary.template
-        self.out_folder = self.LabData.out_folder
-        self.pdf_folder = self.LabData.pdf_folder
+        self.out_folder = self.LabData.out_folder.format(self.group_info[1], self.day.year)
+        self.pdf_folder = self.LabData.pdf_folder.format(self.group_info[1], self.day.year)
         self.week_days = ['月','火','水','木','金','土','日']
         self.ignores  = self.ReadMaterial.get_ignores()
     

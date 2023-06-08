@@ -9,14 +9,23 @@ TERM = 0
 if TODAY.month < 4:
     TERM = 1
 
+read_path = 'read_path.txt'
+data_path_dict = {}
+
+with open(read_path,'r', encoding="utf-8") as f:
+    txt = f.read().split("\n")
+    for row in txt:
+        now = row.split(',')
+        data_path_dict[now[0]] = now[1]
+
 class GetLabInfo:
-    def __init__(self, reference_folder):
+    def __init__(self, reference_folder=data_path_dict["reference"]):
         self.reference_folder = reference_folder
-        self.member_folder = os.path.join(self.reference_folder, "member")
-        
+        self.member_folder = data_path_dict["member"]
+
     def get_year(self):
         res = []
-        for file in Path(self.member_folder).glob("*.xlsx"):
+        for file in Path(self.member_folder).glob("*.csv"):
             base_name = os.path.basename(file)
             print("base_name, ",base_name)
             year = base_name.split("_")[0]
@@ -26,11 +35,12 @@ class GetLabInfo:
         return res
 
 class GetLabMember:
-    def __init__(self, year=TODAY.year-TERM, reference_folder="."):
+    def __init__(self, year=TODAY.year-TERM, reference_folder=data_path_dict["reference"]):
         self.reference_folder = reference_folder
         self.year = year
-        self.member_data_file = os.path.join(reference_folder,"member", "{}_member.xlsx".format(str(self.year)))
-        self.member_data = pd.read_excel(self.member_data_file)
+        self.member_data_file = os.path.join(data_path_dict["member"], "{}_member.csv".format(str(self.year)))
+        print("member_data_file : {}".format(self.member_data_file))
+        self.member_data = pd.read_csv(self.member_data_file)
         
         # 研究室，研究班，学年，氏, 氏名
         self.target_index = [9,11,0,1,5]
@@ -113,7 +123,7 @@ class GetLabMember:
                 lab_member[lab_name][group_name][degree].append(person_name)
         return lab_member
     
-    # member.xlsxから研究室名と班名の対応リストを取得する
+    # member.csvから研究室名と班名の対応リストを取得する
     def get_group(self, lab_name):
         group_list = []
         for group_name in self.all_lab_member[lab_name]:
@@ -140,7 +150,8 @@ class GetLabMember:
         return title_names
 
     def get_schedule(self, group_info):
-        schedule_path = os.path.join(self.reference_folder,"schedule", group_info[0],"{}_schedule.csv".format(self.year))
+        schedule_path = os.path.join(data_path_dict["schedule"],"{}_schedule.csv".format(self.year))
+        print(schedule_path)
         schedule = pd.read_csv(schedule_path, encoding="utf-8")
         group_schedule = []
         for index, element in enumerate(schedule["day"]):
@@ -149,12 +160,12 @@ class GetLabMember:
         return group_schedule
 
 class GetLabData(GetLabMember):
-    def __init__(self, group_info, day, reference_folder='.'):
+    def __init__(self, group_info, day, reference_folder=data_path_dict["reference"]):
         self.group_info = group_info
         self.day = day
         self.term = self.get_term()
-        self.pdf_folder = os.path.join(reference_folder, "pdf", group_info[0], group_info[1])
-        self.out_folder = os.path.join(reference_folder, "out", group_info[0], group_info[1])
+        self.pdf_folder = data_path_dict["pdf"].format(group_info[1], self.day.year)
+        self.out_folder = data_path_dict["out"].format(group_info[1], self.day.year)
         super().__init__(day.year-self.term,reference_folder)
     
     
