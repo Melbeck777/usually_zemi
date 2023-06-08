@@ -1,7 +1,6 @@
 <template>
     <h1 class="top_view">Enjoy<br/>Your<br/>Research<br/>Life...</h1>
-    <button class="move" @click="login">Login</button>
-    <button class="move" @click="sing_in">Sign In</button>
+    <button class="move" @click="summary">Summary</button>
 </template>
 
 <script>
