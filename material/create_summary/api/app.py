@@ -14,7 +14,12 @@ from module.make_summary import MakeSummary
 
 index_folder = "../../frontend/dist"
 static_folder = "{}/_assets".format(index_folder)
-reference_folder = ".."
+ref_dict = {}
+with open("read_path.txt", "r", encoding="utf-8") as f:
+    for row in f.read().split("\n"):
+        now = row.split(",")
+        ref_dict[now[0]] = now[1]
+reference_folder = ref_dict["reference"]
 app = Flask(__name__,static_folder=static_folder,template_folder=index_folder)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
@@ -88,13 +93,13 @@ def get_blank_material_list(fullname_list, folder, schedule):
         for now in Path(date_folder).glob("*.pdf"):    
             base_name_str = str(os.path.basename(now))
             for index, name in enumerate(fullname_list):
-                # print("name, ",name)
                 if name in base_name_str:
-                    # print("{} in {}".format(name,now))
+                    print("{} in {}".format(name,base_name_str))
                     flag_list[index] = True
         for index in range(len(fullname_list)):
             if flag_list[index]:
                 continue
+            print("blank {} {}".format(date, fullname_list[index]))
             res_list[index].append(date_str)
     return res_list
 
@@ -139,11 +144,11 @@ return {
 '''
 @app.route('/summary', methods=["GET"])
 def get_summary_menu():
-    LabInfo = GetLabInfo(reference_folder)
+    LabInfo = GetLabInfo()
     years = LabInfo.get_year()
     res = []
     for year in years:
-        LabMember = GetLabMember(year, reference_folder)
+        LabMember = GetLabMember(year)
         lab_group_pair_list = LabMember.create_lab_group_pair()
         current_list = []
         for lab_name in lab_group_pair_list:
@@ -217,6 +222,7 @@ def get_summary_data(year, lab_name, group_name):
         # print("content,",current_dict["content"])
         meeting_list.append(current_dict)
     res_group_data["blank"] = get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)
+    print(res_group_data)
     # print("blank,",res_group_data["blank"])
     res_group_data["meeting"] = meeting_list
     res_group_data["titles"] = list(presenter[member_list[0]].keys())
