@@ -4,3 +4,5 @@ numpy
 pandas
 flask
 flask_cors
+flask_sqlalchemy
+pymysql
