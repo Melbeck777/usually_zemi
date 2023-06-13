@@ -4,7 +4,7 @@
             <p class="year" @click="select_year(data_key)">{{ data.year }}</p>
             <div v-show="year_select[data_key]">
                 <div class="lab_wrapper" v-for="(lab, lab_key) in data.lab_group">
-                    <p class="lab" @click="select_lab(data_key,lab_key)">{{ lab.lab }}</p>
+                    <p class="lab" @click="select_lab(data_key,lab_key)">{{ lab.lab.substring(0,2) }}</p>
                     <div v-show="lab_select[data_key][lab_key]" v-for="(group, group_key) in lab.group" :key="group_key">
                         <p class="group"  @click="select_group(data.year,lab.lab,group)">
                             {{ group }}
