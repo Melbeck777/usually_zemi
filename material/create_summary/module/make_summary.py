@@ -107,7 +107,7 @@ class MakeSummary:
         else:
             current_summary_text = self.write_basic_info()
         current_summary_text = self.create_summary_text(current_summary_text,member_data)
-        print('output file : ',summary_file_name)
+        # print('output file : ',summary_file_name)
         if os.path.exists(self.out_folder) == False:
             os.makedirs(self.out_folder)
         with open(summary_file_name,'w',encoding='utf-8') as f:
@@ -126,7 +126,7 @@ class MakeSummary:
         member_data = self.compare_summary(edit_summary, member_data)
         current_summary_text = self.write_basic_info(announcement,recorder=recorder, absence=absence)
         current_summary_text = self.create_summary_text(current_summary_text,member_data)
-        print('output file : ',summary_file_name)
+        # print('output file : ',summary_file_name)
         if os.path.exists(self.out_folder) == False:
             os.makedirs(self.out_folder)
         with open(summary_file_name,'w',encoding='utf-8') as f:
@@ -136,12 +136,12 @@ class MakeSummary:
         txt = ""
         already_input = []
         for name in member:
-            print("name,",name,name == None, name == "")
+            # print("name,",name,name == None, name == "")
             if name == None or name == "" or name in already_input:
                 continue
             already_input.append(name)
             txt += "{}, ".format(name)
-        print("member, txt = {},{}".format(member,txt))
+        # print("member, txt = {},{}".format(member,txt))
         return txt[:-2]
     
     # 議事録を作る

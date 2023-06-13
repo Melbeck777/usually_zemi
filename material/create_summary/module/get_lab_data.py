@@ -27,7 +27,7 @@ class GetLabInfo:
         res = []
         for file in Path(self.member_folder).glob("*.csv"):
             base_name = os.path.basename(file)
-            print("base_name, ",base_name)
+            # print("base_name, ",base_name)
             year = base_name.split("_")[0]
             if year in res:
                 continue
@@ -39,7 +39,7 @@ class GetLabMember:
         self.reference_folder = reference_folder
         self.year = year
         self.member_data_file = os.path.join(data_path_dict["member"], "{}_member.csv".format(str(self.year)))
-        print("member_data_file : {}".format(self.member_data_file))
+        # print("member_data_file : {}".format(self.member_data_file))
         self.member_data = pd.read_csv(self.member_data_file)
         
         # 研究室，研究班，学年，氏, 氏名
@@ -137,7 +137,7 @@ class GetLabMember:
     
     # 記載する項目の取得
     def get_title_names(self):
-        path = os.path.join("..","READMe.md")
+        path = os.path.join("..","README.md")
         title_names = []
         target = '<!-- title -!>'
         with open(path, 'r', encoding='utf-8') as f:
@@ -151,7 +151,7 @@ class GetLabMember:
 
     def get_schedule(self, group_info):
         schedule_path = os.path.join(data_path_dict["schedule"],"{}_schedule.csv".format(self.year))
-        print(schedule_path)
+        # print(schedule_path)
         schedule = pd.read_csv(schedule_path, encoding="utf-8")
         group_schedule = []
         for index, element in enumerate(schedule["day"]):
@@ -166,6 +166,7 @@ class GetLabData(GetLabMember):
         self.term = self.get_term()
         self.pdf_folder = data_path_dict["pdf"].format(group_info[1], self.day.year)
         self.out_folder = data_path_dict["out"].format(group_info[1], self.day.year)
+        self.setting_folder = data_path_dict["setting"]
         super().__init__(day.year-self.term,reference_folder)
     
     
@@ -182,7 +183,7 @@ class GetLabData(GetLabMember):
                 if presenter_name in name:
                     res_fullname_list.append(name.replace(" ",""))
                     break
-        print(res_fullname_list)
+        # print(res_fullname_list)
         return res_fullname_list
 
     def get_term(self,day=None):
@@ -208,7 +209,7 @@ class GetLabData(GetLabMember):
     
     def get_professor(self):
         res = ""
-        print(self.all_lab_member[self.group_info[0]])
+        # print(self.all_lab_member[self.group_info[0]])
         for name in self.all_lab_member[self.group_info[0]][self.teacher_label]:
             res += name + "教授, "
         return res
@@ -257,9 +258,9 @@ class GetLabData(GetLabMember):
             participants += self.get_B3()
         if participants[-2:] == ", ":
             participants = participants[:-2]
-        print("get_professor = {}".format(self.get_professor()))
-        print("get_B3 = {}".format(self.get_B3()))
-        print("participants = {}".format(participants))
+        # print("get_professor = {}".format(self.get_professor()))
+        # print("get_B3 = {}".format(self.get_B3()))
+        # print("participants = {}".format(participants))
         return participants
 
     '''

@@ -9,15 +9,17 @@ class ReadSummary:
         self.group_info = group_info
         self.day = day
         self.reference_folder = reference_folder
-        self.template = self.get_template()
-        self.LabData = GetLabData(group_info,day,reference_folder)
+        self.LabData = GetLabData(group_info,day)
         self.out_folder = self.LabData.out_folder.format(self.group_info[1],self.day.year)
         self.pdf_folder = self.LabData.pdf_folder.format(self.group_info[1],self.day.year)
+        self.setting_folder = self.LabData.setting_folder
+        self.template = self.get_template()
+
 
 
     # 議事録のテンプレートを取得
     def get_template(self):
-        template_path = os.path.join(self.reference_folder,"year_month_day.txt")
+        template_path = os.path.join(self.setting_folder,"year_month_day.txt")
         template_summary = []
         with open(template_path, 'r', encoding='utf-8') as f:
             file_text = f.read().split('\n')
@@ -100,7 +102,7 @@ class ReadSummary:
             return True
         elif os.path.exists(from_path) != True:
             return True
-        print('{} => {}'.format(from_path,to_path))
+        # print('{} => {}'.format(from_path,to_path))
         shutil.move(from_path,to_path)
 
     # tabの数を数える

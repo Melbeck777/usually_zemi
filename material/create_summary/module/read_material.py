@@ -11,7 +11,8 @@ class ReadMaterial:
         self.day        = day
         self.edit_name  = edit_name
         self.reference_folder = reference_folder
-        self.LabData    = GetLabData(group_info,day,reference_folder)
+        self.LabData    = GetLabData(group_info,day)
+        self.setting_folder = self.LabData.setting_folder
         self.presenter  = self.LabData.get_presenter()
         self.ignores    = self.get_ignores()
         self.pdf_folder = self.LabData.pdf_folder.format(group_info[1], self.day.year)
@@ -19,13 +20,13 @@ class ReadMaterial:
         self.bullet_marks = self.get_bullet_marks()
     
     def get_ignores(self):
-        ignore_file = os.path.join(self.reference_folder, "ignore.txt")
+        ignore_file = os.path.join(self.setting_folder, "ignore.txt")
         with open(ignore_file, "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
 
     def get_bullet_marks(self):
-        bullet_marks_file = "../bullet_marks.txt"
+        bullet_marks_file = os.path.join(self.setting_folder,"bullet_marks.txt")
         with open(bullet_marks_file, "r", encoding="utf-8") as f:
             res = f.read().split("\n")
         return res
@@ -133,7 +134,7 @@ class ReadMaterial:
         presenter_data = self.presenter
         pdf_counter = 0
         today_folder = os.path.join(self.pdf_folder, self.LabData.today_summary_folder())
-        print("today folder : {}".format(today_folder))
+        # print("today folder : {}".format(today_folder))
         for name in presenter_data:
             for now_file in Path(today_folder).glob("*{}*.pdf".format(name)):
                 pdf_counter += 1
