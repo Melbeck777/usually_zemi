@@ -103,7 +103,7 @@ class ReadMaterial:
                 if target_name not in person_data:
                     person_data[target_name] = self.get_current_page(now_text)
                 else:
-                    person_data[target_name].append(self.get_current_page(now_text))
+                    person_data[target_name].extend(self.get_current_page(now_text))
         return person_data
 
     # ルールを決める前のスライドからの情報の取得
