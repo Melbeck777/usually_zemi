@@ -6,10 +6,10 @@ from .get_lab_data import GetLabData
 
 class ReadSummary:
     def __init__(self, group_info, day, reference_folder="."):
-        self.group_info = group_info
         self.day = day
         self.reference_folder = reference_folder
         self.LabData = GetLabData(group_info,day)
+        self.group_info = self.LabData.group_info
         self.out_folder = self.LabData.out_folder.format(self.group_info[1],self.day.year)
         self.pdf_folder = self.LabData.pdf_folder.format(self.group_info[1],self.day.year)
         self.setting_folder = self.LabData.setting_folder

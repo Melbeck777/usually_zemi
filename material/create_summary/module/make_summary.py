@@ -11,15 +11,15 @@ TODAY = datetime.datetime.today()
 ONE_WEEK_OFFSET = datetime.timedelta(weeks=1)
 
 class MakeSummary:
-    def __init__(self,group_info, day_index, reference_folder=".", sep_date=SEP_DATE):
-        self.group_info = group_info
-        self.LabMember = GetLabMember(reference_folder=reference_folder)
+    def __init__(self,group_info, day_index, year, reference_folder=".", sep_date=SEP_DATE): 
+        self.LabMember = GetLabMember(year=year,reference_folder=reference_folder)
         self.schedule = self.LabMember.get_schedule(group_info) 
         self.day = self.schedule[day_index]
         self.sep_date = sep_date
         self.pre_week_day = TODAY-ONE_WEEK_OFFSET
         self.next_week_day = TODAY+ONE_WEEK_OFFSET
         self.LabData     = GetLabData(group_info,  self.day, reference_folder)
+        self.group_info = self.LabData.group_info
         self.edit_order = self.LabData.get_edit_order()
         self.edit_name = self.edit_order[day_index%len(self.edit_order)]
         self.ReadSummary = ReadSummary(group_info,  self.day, reference_folder)
@@ -31,7 +31,7 @@ class MakeSummary:
         self.pdf_folder = self.LabData.pdf_folder.format(self.group_info[1], self.day.year)
         self.week_days = ['月','火','水','木','金','土','日']
         self.ignores  = self.ReadMaterial.get_ignores()
-    
+
     # 基本情報の記述
     def write_basic_info(self,announcements=[],recorder="", absence=[]):
         current_template = self.template
@@ -115,8 +115,10 @@ class MakeSummary:
 
     def create_one_day_summary_edited(self, day_index, edit_summary, announcement, absence=[], recorder=None):
         day = self.schedule[day_index]
+        print(self.schedule)
         current_edit_name = self.edit_order[day_index%len(self.edit_order)]
         summary_file_name = self.ReadSummary.get_summary_file_name(current_edit_name)
+        print(summary_file_name)
         if day > self.sep_date:
             member_data,counter = self.ReadMaterial.get_presenter_data()
         else:

@@ -7,11 +7,11 @@ from .get_lab_data import GetLabData
 
 class ReadMaterial:
     def __init__(self, group_info, day, edit_name, reference_folder="."):
-        self.group_info = group_info
         self.day        = day
         self.edit_name  = edit_name
         self.reference_folder = reference_folder
         self.LabData    = GetLabData(group_info,day)
+        self.group_info = self.LabData.group_info
         self.setting_folder = self.LabData.setting_folder
         self.presenter  = self.LabData.get_presenter()
         self.ignores    = self.get_ignores()

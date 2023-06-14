@@ -151,7 +151,7 @@ class GetLabMember:
 
     def get_schedule(self, group_info):
         schedule_path = os.path.join(data_path_dict["schedule"],"{}_schedule.csv".format(self.year))
-        # print(schedule_path)
+        print(schedule_path)
         schedule = pd.read_csv(schedule_path, encoding="utf-8")
         group_schedule = []
         for index, element in enumerate(schedule["day"]):
@@ -168,7 +168,10 @@ class GetLabData(GetLabMember):
         self.out_folder = data_path_dict["out"].format(group_info[1], self.day.year)
         self.setting_folder = data_path_dict["setting"]
         super().__init__(day.year-self.term,reference_folder)
-    
+        for it in self.all_lab_member.keys():
+            if self.group_info[0] in it:
+                self.group_info[0] = it
+
     
     def get_fullname_list(self, presenter):
         fullname_list = []

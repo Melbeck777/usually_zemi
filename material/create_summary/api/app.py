@@ -73,7 +73,7 @@ def summary_to_dict(summary, presenter):
 
 def path_to_date(date_str):
     date = datetime.datetime.strptime(date_str, "%Y%m%d")
-    print(date)
+    # print(date)
     res_str = "{}/{}/{}".format(date.year, date.month, date.day)
     return res_str
 
@@ -94,27 +94,28 @@ def get_blank_material_list(fullname_list, folder, schedule):
             base_name_str = str(os.path.basename(now))
             for index, name in enumerate(fullname_list):
                 if name in base_name_str:
-                    print("{} in {}".format(name,base_name_str))
+                    # print("{} in {}".format(name,base_name_str))
                     flag_list[index] = True
         for index in range(len(fullname_list)):
             if flag_list[index]:
                 continue
-            print("blank {} {}".format(date, fullname_list[index]))
+            # print("blank {} {}".format(date, fullname_list[index]))
             res_list[index].append(date_str)
     return res_list
 
 # サイトURLや共有サーバリンクを判別する
 def get_link(ref_list):
     title_link = []
-    url_tag = re.compile("https*")
+    url_tag = re.compile("http*")
     # internal_server = re.compile("\\")
     if len(ref_list) == 0:
         return ""
     for title in ref_list:
+        print(title)
         if url_tag.match(title) != None: # or internal_server.match(title) != None:
             title_link[-1]["url"] = title
         elif url_tag.search(title):
-            url_index = title.index("https")
+            url_index = title.index("http")
             title_link.append({"title":title[:url_index], "url":title[url_index:]})
         else:
             title_link.append({"title":title, "url":""})
@@ -212,7 +213,7 @@ def get_summary_data(year, lab_name, group_name):
         if os.path.exists(today_summary_file_name) == False:
             current_dict["content"] = [["" for i in range(len(current_presenter[member_list[0]]))]for i in range(len(current_presenter))]
         else:
-            print(day)
+            # print(day)
             content = RS.get_summary_contents(today_summary_file_name, current_presenter)
             current_dict["content"],empty_flag = split_content(content,current_presenter) 
             announcement = RS.get_announcements(today_summary_file_name,current_presenter)
@@ -222,7 +223,7 @@ def get_summary_data(year, lab_name, group_name):
         # print("content,",current_dict["content"])
         meeting_list.append(current_dict)
     res_group_data["blank"] = get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)
-    print(res_group_data)
+    # print(res_group_data)
     # print("blank,",res_group_data["blank"])
     res_group_data["meeting"] = meeting_list
     res_group_data["titles"] = list(presenter[member_list[0]].keys())
@@ -239,14 +240,14 @@ def load_summary(year, lab_name, group_name, day_index):
     announcement = meeting['announcement']
     recorder = meeting['recorder']
     absences = meeting['absences']
-    print("absences, ",absences)
+    # print("absences, ",absences)
     if type(announcement) is not list:
         announcement = announcement.split("\n")
     if sep_date_flag:
-        MS = MakeSummary([lab_name, group_name], day_index, reference_folder)
+        MS = MakeSummary([lab_name, group_name], day_index, year, reference_folder)
     else:
         sep_date = TODAY + datetime.timedelta(weeks=1)
-        MS = MakeSummary([lab_name, group_name], day_index, reference_folder, sep_date)
+        MS = MakeSummary([lab_name, group_name], day_index, year, reference_folder, sep_date)
     presenter = MS.LabData.get_presenter()
     edit_summary = summary_to_dict(edit_summary_content, presenter)
     MS.create_one_day_summary_edited(day_index,edit_summary,announcement,absences,recorder)
@@ -283,7 +284,7 @@ def get_one_meeting(year, lab_name, group_name, meeting_key):
     else:
         meeting["recorder"] = ""
         meeting["absences"] = []
-    print("{border}\n{meeting}\n{border}".format(border="-"*30,meeting=meeting))
+    # print("{border}\n{meeting}\n{border}".format(border="-"*30,meeting=meeting))
     res = {"meeting":meeting, "blank":get_blank_material_list(RS.LabData.get_fullname_list(presenter), RS.LabData.pdf_folder, schedule)}
     return jsonify(res)
 
